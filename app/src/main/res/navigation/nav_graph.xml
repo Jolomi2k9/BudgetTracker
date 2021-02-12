@@ -9,5 +9,14 @@
         android:id="@+id/landingFragment"
         android:name="com.example.budgettracker.ui.landing.LandingFragment"
         android:label="fragment_landing"
-        tools:layout="@layout/fragment_landing" />
+        tools:layout="@layout/fragment_landing" >
+        <action
+            android:id="@+id/action_landingFragment_to_cameraFragment"
+            app:destination="@id/cameraFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="com.example.budgettracker.camera.CameraFragment"
+        android:label="fragment_camera"
+        tools:layout="@layout/fragment_camera" />
 </navigation>
