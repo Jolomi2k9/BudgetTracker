@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.camera.core.ImageCapture
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -20,7 +21,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 
-class CameraFragment : Fragment() {
+class CameraFragment : Fragment(R.layout.fragment_camera) {
 
 
     private var imageCapture: ImageCapture? = null
@@ -31,14 +32,14 @@ class CameraFragment : Fragment() {
     private lateinit var binding: FragmentCameraBinding
 
     //override fun onCreate(savedInstanceState: Bundle?) {
-    override fun onCreateView(
+  /*  override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         //super.onCreate(savedInstanceState)
         //setContentView(R.layout.activity_main)
 
-        /** Inflate view and obtain an instance of the binding class*/
+        *//** Inflate view and obtain an instance of the binding class*//*
         binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_camera,
@@ -64,7 +65,34 @@ class CameraFragment : Fragment() {
 
         return binding.root
 
+    }*/
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val binding = FragmentCameraBinding.bind(view)
+
+        // Request camera permissions
+        if (allPermissionsGranted()) {
+            startCamera()
+        } else {
+            ActivityCompat.requestPermissions(
+                requireActivity(), REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
+            )
+        }
+
+        // Set up the listener for take photo button
+        camera_capture_button.setOnClickListener { takePhoto() }
+
+        outputDirectory = getOutputDirectory()
+
+        cameraExecutor = Executors.newSingleThreadExecutor()
+
     }
+
+
+
+
 
     private fun takePhoto() {}
 
@@ -95,6 +123,23 @@ class CameraFragment : Fragment() {
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<String>, grantResults:
+        IntArray) {
+        if (requestCode == REQUEST_CODE_PERMISSIONS) {
+            if (allPermissionsGranted()) {
+                startCamera()
+            } else {
+                Toast.makeText(requireContext().applicationContext,
+                    "Permissions not granted by the user.",
+                    Toast.LENGTH_SHORT).show()
+                requireActivity().finish()
+            }
+        }
+    }
+
+
 }
 
 
