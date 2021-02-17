@@ -32,11 +32,10 @@ class LandingFragment : Fragment(R.layout.fragment_landing) {
                 adapter = receiptAdapter
                 //
                 layoutManager = LinearLayoutManager(requireContext())
-
             }
         }
 
-        //button to navigate to the camera fragment and add new receipt data
+        //button to navigate to the camera fragment and scan new receipt data
         binding.fabAddReceipt.setOnClickListener { view : View ->
             view.findNavController().navigate(R.id.action_landingFragment_to_cameraFragment)
         }

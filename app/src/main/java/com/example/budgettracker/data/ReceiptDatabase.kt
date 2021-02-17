@@ -11,12 +11,15 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 /**
- *Trigger Room code generation by annotating class.
- *Pass in the Receipt table.
+ * Trigger Room code generation by annotating class.
+ * Pass in all our tables.
  * We use version to update the database if we change the
  * schema.
  */
-@Database(entities = [Receipt::class], version = 1)
+@Database(entities = [Receipt::class,
+                        Shop::class,
+                        Product::class,
+                     ], version = 1)
 /**
  * Make class abstract because Room will generate all the necessary code
  * and implementation for the class
@@ -50,17 +53,20 @@ abstract class ReceiptDatabase : RoomDatabase(){
 
             /*
             * we use this coroutine to run suspends functions,
-            * which can only run by coroutines
+            * which can only be run by coroutines
             */
             applicationScope.launch{
-                dao.insert(Receipt("Tesco","CKD CHICKEN",3.50))
+                /*dao.insert(Receipt("Tesco","CKD CHICKEN",3.50))
                 dao.insert(Receipt("Tesco","COCOA POWDER",1.79))
                 dao.insert(Receipt("Tesco","MILK CHOCOLATE",1.39))
                 dao.insert(Receipt("Tesco","FRESH PROTEIN",1.09))
                 dao.insert(Receipt("Tesco","TESCO TEABAGS",1.89))
                 dao.insert(Receipt("Tesco","HB ICEBERGER",2.50))
                 dao.insert(Receipt("Tesco","PEELER",1.99))
-                dao.insert(Receipt("Tesco","CKD CHICKEN",3.50))
+                dao.insert(Receipt("Tesco","CKD CHICKEN",3.50))*/
+                //dao.insert(Receipt())
+
+
             }
 
         }

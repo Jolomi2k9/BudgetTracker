@@ -31,18 +31,19 @@ class ReceiptAdapter : ListAdapter<Receipt, ReceiptAdapter.ReceiptViewHolder>(Di
         fun bind(receipt: Receipt){
             //specifies which data to put into the view of the item receipt
             binding.apply {
-                storeName.text = receipt.shopName
-                totalPrice.text = receipt.price.toString()
+                /*storeName.text = receipt.shopName
+                totalPrice.text = receipt.price.toString()*/
+                receiptDate.text = receipt.createdDateFormatted
             }
         }
 
     }
 
-    //to enable the ListAdapter compare list items
+    //to enable the ListAdapter to compare list items
     class DiffCallback : DiffUtil.ItemCallback<Receipt>(){
         //uniquely compare items
         override fun areItemsTheSame(oldItem: Receipt, newItem: Receipt) =
-            oldItem.id == newItem.id
+            oldItem.receiptId == newItem.receiptId
 
         override fun areContentsTheSame(oldItem: Receipt, newItem: Receipt)  =
              oldItem == newItem

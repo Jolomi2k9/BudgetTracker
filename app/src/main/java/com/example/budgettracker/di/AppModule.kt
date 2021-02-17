@@ -14,7 +14,7 @@ import javax.inject.Singleton
 
 /***/
 @Module
-/**Use this database thought out our app*/
+/**Use this database throughout our app*/
 @InstallIn(ApplicationComponent::class)
 object AppModule {
 
