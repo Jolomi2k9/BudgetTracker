@@ -5,10 +5,11 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.budgettracker.di.ApplicationScope
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlin.collections.ArrayList
 
 /**
  * Trigger Room code generation by annotating class.
@@ -19,7 +20,9 @@ import javax.inject.Provider
 @Database(entities = [Receipt::class,
                         Shop::class,
                         Product::class,
-                     ], version = 1)
+                        ReceiptsWithProducts::class,
+                        ShopsWithReceipts::class,
+                     ],version = 1)
 /**
  * Make class abstract because Room will generate all the necessary code
  * and implementation for the class
@@ -51,23 +54,42 @@ abstract class ReceiptDatabase : RoomDatabase(){
             //
             val dao = database.get().receiptDao()
 
+            //receipt primary key
+
+
+            //insert into shops
+            val shops = listOf<Shop>(Shop("Tesco"))
+            //insert into receipts
+            val receipts = listOf<Receipt>(Receipt("Tesco"))
+            //get receipt primary key
+            val hey = receipts[1]
+            val rKey = hey.receiptId
+
+            //insert into products
+            val products = listOf<Product>(
+                            Product("CKD CHICKEN",3.50,rKey),
+                            Product("COCOA POWDER",1.79,rKey),
+                            Product("MILK CHOCOLATE",1.09,rKey),
+                            Product("FRESH PROTEIN",1.89,rKey),
+                            Product("TESCO TEABAGS",2.50,rKey),
+                            Product("PEELER",1.99,rKey)
+            )
+
             /*
             * we use this coroutine to run suspends functions,
             * which can only be run by coroutines
             */
             applicationScope.launch{
-                /*dao.insert(Receipt("Tesco","CKD CHICKEN",3.50))
-                dao.insert(Receipt("Tesco","COCOA POWDER",1.79))
-                dao.insert(Receipt("Tesco","MILK CHOCOLATE",1.39))
-                dao.insert(Receipt("Tesco","FRESH PROTEIN",1.09))
-                dao.insert(Receipt("Tesco","TESCO TEABAGS",1.89))
-                dao.insert(Receipt("Tesco","HB ICEBERGER",2.50))
-                dao.insert(Receipt("Tesco","PEELER",1.99))
-                dao.insert(Receipt("Tesco","CKD CHICKEN",3.50))*/
-                //dao.insert(Receipt())
-
+                shops.forEach { dao.insertShop(it)}
+                receipts.forEach { dao.insertReceipt(it)}
+                products.forEach { dao.insertProduct(it)}
 
             }
+
+
+
+
+
 
         }
     }
