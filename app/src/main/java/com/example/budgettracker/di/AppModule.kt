@@ -14,10 +14,9 @@ import javax.inject.Singleton
 
 /***/
 @Module
-/**Use this database throughout our app*/
+/*Use this database throughout our app*/
 @InstallIn(ApplicationComponent::class)
 object AppModule {
-
     @Provides
     //only creates one instance of the Receipt database
     @Singleton

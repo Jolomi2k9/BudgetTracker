@@ -20,8 +20,8 @@ import kotlin.collections.ArrayList
 @Database(entities = [Receipt::class,
                         Shop::class,
                         Product::class,
-                        ReceiptsWithProducts::class,
-                        ShopsWithReceipts::class,
+                        //ReceiptsWithProducts::class
+                        //ShopsWithReceipts::class
                      ],version = 1)
 /**
  * Make class abstract because Room will generate all the necessary code
@@ -54,19 +54,18 @@ abstract class ReceiptDatabase : RoomDatabase(){
             //
             val dao = database.get().receiptDao()
 
-            //receipt primary key
-
-
             //insert into shops
-            val shops = listOf<Shop>(Shop("Tesco"))
+            val shops = listOf(Shop("Tesco"))
+            //get shops primary key
+            val hey = shops[0]
+            val sKey = hey.shopId
             //insert into receipts
-            val receipts = listOf<Receipt>(Receipt("Tesco"))
+            val receipts = listOf(Receipt(sKey))
             //get receipt primary key
-            val hey = receipts[1]
-            val rKey = hey.receiptId
-
+            val hey1 = receipts[0]
+            val rKey = hey1.receiptId
             //insert into products
-            val products = listOf<Product>(
+            val products = listOf(
                             Product("CKD CHICKEN",3.50,rKey),
                             Product("COCOA POWDER",1.79,rKey),
                             Product("MILK CHOCOLATE",1.09,rKey),
@@ -74,22 +73,14 @@ abstract class ReceiptDatabase : RoomDatabase(){
                             Product("TESCO TEABAGS",2.50,rKey),
                             Product("PEELER",1.99,rKey)
             )
-
-            /*
-            * we use this coroutine to run suspends functions,
-            * which can only be run by coroutines
-            */
+            // we use this coroutine to run suspends functions,
+            //which can only be run by coroutines
             applicationScope.launch{
                 shops.forEach { dao.insertShop(it)}
                 receipts.forEach { dao.insertReceipt(it)}
                 products.forEach { dao.insertProduct(it)}
 
             }
-
-
-
-
-
 
         }
     }

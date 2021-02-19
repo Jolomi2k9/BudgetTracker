@@ -14,9 +14,9 @@ import java.text.DateFormat
 //Table for the list of shops
 @Entity(tableName = "shop_table")
 data class Shop(
-    //Primary key to uniquely identify all of the items in this table
-    @PrimaryKey(autoGenerate = false)
     val shopName: String,
+    //Primary key to uniquely identify all of the items in this table
+    @PrimaryKey(autoGenerate = true) val shopId: Int = 0
 )
 
 
@@ -25,7 +25,7 @@ data class Shop(
 /**Make parcelable to be able to send this object between different fragments*/
 @Parcelize
 data class Receipt(
-    val shopReceiptId: String,//fk
+    val shopReceiptId: Int,//fk
     val created: Long = System.currentTimeMillis(),
     @PrimaryKey(autoGenerate = true) val receiptId: Int = 0
 )  : Parcelable {
@@ -64,7 +64,7 @@ data class ShopsWithReceipts(
     @Embedded val shop: Shop,
     @Relation(
         entity = Receipt::class,
-        parentColumn = "shopName",
+        parentColumn = "shopId",
         entityColumn = "shopReceiptId"
     )
     val receipt: List<ReceiptsWithProducts>

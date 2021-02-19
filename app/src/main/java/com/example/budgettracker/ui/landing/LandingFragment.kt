@@ -19,7 +19,7 @@ class LandingFragment : Fragment(R.layout.fragment_landing) {
 
     private val viewModel: LandingFragmentViewModel by viewModels()
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    /*override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         //binding to the view
         val binding = FragmentLandingBinding.bind(view)
@@ -45,6 +45,35 @@ class LandingFragment : Fragment(R.layout.fragment_landing) {
             //
             receiptAdapter.submitList(it)
         }
+
+    }*/
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        //binding to the view
+        val binding = FragmentLandingBinding.bind(view)
+        //get an instance of the receipt adapter
+        val receiptAdapter = ReceiptAdapter()
+        //binding our receipts
+        binding.apply {
+            recyclerViewLanding.apply {
+                //set the adapter of the recyclerviewlanding
+                adapter = receiptAdapter
+                //specify how layout manager should layout the items on screen
+                layoutManager = LinearLayoutManager(requireContext())
+            }
+        }
+        //button to navigate to the camera fragment and scan new receipt data
+        binding.fabAddReceipt.setOnClickListener { view : View ->
+            view.findNavController().navigate(R.id.action_landingFragment_to_cameraFragment)
+        }
+        //observes our livedata in the receipt database
+        viewModel.shopsWithReceipt.observe(viewLifecycleOwner){
+            //whenever something in the database changes, the adapter is updated
+            receiptAdapter.submitList(it)
+        }
+
 
     }
 

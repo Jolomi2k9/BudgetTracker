@@ -10,7 +10,9 @@ class LandingFragmentViewModel @ViewModelInject constructor(
 ) : ViewModel() {
 
     //get receipt data from the database
-    val receipt = receiptDao.getReceipt().asLiveData()
+    //val receipt = receiptDao.getReceipt().asLiveData()
+    //get data from our database
+    val shopsWithReceipt = receiptDao.getShopsWithReceipts().asLiveData()
 
 
 
