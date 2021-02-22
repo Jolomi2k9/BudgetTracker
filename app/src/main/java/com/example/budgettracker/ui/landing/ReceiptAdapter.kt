@@ -85,7 +85,7 @@ class ReceiptAdapter : ListAdapter<ShopsWithReceipts, ReceiptAdapter.ReceiptView
     class DiffCallback : DiffUtil.ItemCallback<ShopsWithReceipts>(){
         //uniquely compare items
         override fun areItemsTheSame(oldItem: ShopsWithReceipts, newItem: ShopsWithReceipts) =
-            oldItem.receipt[0].receipt.receiptId == newItem.receipt[0].receipt.receiptId
+            oldItem.receipt == newItem.receipt
 
         //inform callback when item in our list has changed
         override fun areContentsTheSame(oldItem: ShopsWithReceipts, newItem: ShopsWithReceipts)  =
