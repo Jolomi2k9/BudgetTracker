@@ -66,7 +66,7 @@ class LandingFragment : Fragment(R.layout.fragment_landing) {
         }
         //button to navigate to the camera fragment and scan new receipt data
         binding.fabAddReceipt.setOnClickListener { view : View ->
-            view.findNavController().navigate(R.id.action_landingFragment_to_cameraFragment)
+            view.findNavController().navigate(R.id.action_landingFragment_to_imageViewFragment)
         }
         //observes our livedata in the receipt database
         viewModel.shopsWithReceipt.observe(viewLifecycleOwner){
