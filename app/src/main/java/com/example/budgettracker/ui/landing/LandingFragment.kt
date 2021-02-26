@@ -1,9 +1,7 @@
 package com.example.budgettracker.ui.landing
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -74,6 +72,40 @@ class LandingFragment : Fragment(R.layout.fragment_landing) {
             receiptAdapter.submitList(it)
         }
 
+        //Activate the options menu in fragment
+        setHasOptionsMenu(true)
+
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_fragment_receipt,menu)
+
+
+    }
+
+    //Define action to take when a menu item is clicked
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        //identify the item that was clicked
+        return when(item.itemId){
+            R.id.action_sort_by_store -> {
+              //action to take when item clicked
+                viewModel.sortOrder.value = SortOrder.BY_STORE
+               true
+            }
+            //
+            R.id.action_sort_by_date_created -> {
+                //action to take when item clicked
+                viewModel.sortOrder.value = SortOrder.BY_DATE
+                true
+            }
+            R.id.action_export_receipts -> {
+
+                true
+            }
+            //return false to indicate the click was not handled
+            else -> super.onOptionsItemSelected(item)
+        }
 
     }
 
