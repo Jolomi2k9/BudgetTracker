@@ -37,12 +37,12 @@ interface ReceiptDao {
 
 
 
-    /*Update the database*/
-    @Update
-    suspend fun update(receipt: Receipt)
 
     /*Delete from the database*/
     @Delete
     suspend fun delete(receipt: Receipt)
+
+   
+
 
 }

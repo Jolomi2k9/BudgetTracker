@@ -1,6 +1,8 @@
 package com.example.budgettracker.data
 
+import android.content.Context
 import androidx.room.Database
+import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.budgettracker.di.ApplicationScope
@@ -20,8 +22,6 @@ import kotlin.collections.ArrayList
 @Database(entities = [Receipt::class,
                         Shop::class,
                         Product::class,
-                        //ReceiptsWithProducts::class
-                        //ShopsWithReceipts::class
                      ],version = 1)
 /**
  * Make class abstract because Room will generate all the necessary code
@@ -35,13 +35,11 @@ abstract class ReceiptDatabase : RoomDatabase(){
      */
     abstract fun receiptDao(): ReceiptDao
 
-    /*
-    * @Inject enables dagger how to create an instance of the class below
+   /* * @Inject enables dagger how to create an instance of the class below
     * We make dagger to not instantiate the database when
     * the below callback is created to avoid a circular dependency, but will do so
     * only when the onCreate() method below is executed, which happens AFTER
-    * the build() method in AppModule.kt has finished.
-    */
+    * the build() method in AppModule.kt has finished.*/
     class Callback @Inject constructor(
         //use provider to avoid a circular dependency
         private val database: Provider<ReceiptDatabase>,
@@ -84,4 +82,39 @@ abstract class ReceiptDatabase : RoomDatabase(){
 
         }
     }
+
+    /*companion object {
+
+
+        *//**
+         * The value of a volatile variable will never be cached, and all
+         * writes and reads will be done to and from the main memory.
+         * *//*
+        @Volatile
+        private var INSTANCE: ReceiptDatabase? = null
+
+        fun getInstance(context: Context): ReceiptDatabase {
+
+            synchronized(this) {}
+
+            var instance = INSTANCE
+
+            if (instance == null) {
+                instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    ReceiptDatabase::class.java,
+                    "sleep_history_database")
+                    .fallbackToDestructiveMigration()
+                    .build()
+                INSTANCE = instance
+
+            }
+            return instance
+        }
+
+    }
+*/
+
+
+
 }

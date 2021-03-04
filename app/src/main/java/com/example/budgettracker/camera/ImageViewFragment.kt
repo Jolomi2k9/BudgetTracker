@@ -17,16 +17,30 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import com.example.budgettracker.R
+import com.example.budgettracker.data.ReceiptDatabase
+import com.example.budgettracker.databinding.FragmentImageviewBinding
+import com.google.mlkit.nl.entityextraction.EntityExtraction
+import com.google.mlkit.nl.entityextraction.EntityExtractor
+import com.google.mlkit.nl.entityextraction.EntityExtractorOptions
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_imageview.*
 import java.io.File
 
 private const val FILE_NAME = "image.jpg"
 private const val REQUEST_CODE = 10
 private lateinit var imageFile: File
+
+@AndroidEntryPoint
 class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
+
+    private val viewModel: CameraFragmentViewModel by viewModels()
+    lateinit var jTextEntityExtractor: EntityExtractor
+    private var jIsModelAvailable = false
 
     private lateinit var safeContext: Context
 
@@ -37,6 +51,16 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        //EntityExtractor object configured with EntityExtractorOptions
+         jTextEntityExtractor = EntityExtraction.getClient(
+            EntityExtractorOptions.Builder(EntityExtractorOptions.ENGLISH)
+                .build())
+        //Confirming the needed model is downloaded on the device
+        jTextEntityExtractor.downloadModelIfNeeded()
+            .addOnSuccessListener { _ ->
+                 jIsModelAvailable = true
+            }
         //
         if (ContextCompat.checkSelfPermission(safeContext, Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.CAMERA),110)
@@ -44,6 +68,7 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
         }else{
             takePicture()
         }
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -52,7 +77,9 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
            // val takenImage = data?.extras?.get("data") as Bitmap
             val takenImage = BitmapFactory.decodeFile(imageFile.absolutePath)
             imageView.setImageBitmap(takenImage)
-            textRecognition(takenImage)
+            viewModel.mIsModelAvailable = jIsModelAvailable
+            viewModel.mTextEntityExtractor = jTextEntityExtractor
+            viewModel.textRecognition(takenImage)
         }else{
             super.onActivityResult(requestCode, resultCode, data)
         }
@@ -77,27 +104,6 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
         //access package-specific directories
         val storageDirectory = safeContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         return File.createTempFile(fileName, ".jpg", storageDirectory)
-    }
-
-
-    private fun textRecognition(image: Bitmap) {
-
-        val image = InputImage.fromBitmap(image, 0)
-        val recognizer = TextRecognition.getClient()
-
-        val result = recognizer.process(image)
-            .addOnSuccessListener { visionText ->
-                for (block in visionText.textBlocks){
-                    val blockText = block.text
-                    //Log.i("ImageViewFragment",blockText)
-                    for (line in block.lines) {
-                        val lineText = line.text
-                        Log.i("ImageViewFragment",lineText)
-                    }
-                }
-            }
-            .addOnFailureListener { e ->
-            }
     }
 
 }

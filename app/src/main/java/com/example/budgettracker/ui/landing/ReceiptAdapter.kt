@@ -71,9 +71,12 @@ class ReceiptAdapter : ListAdapter<ShopsWithReceipts, ReceiptAdapter.ReceiptView
     }
 
     class ReceiptViewHolder(private val binding: ItemReceiptBinding) : RecyclerView.ViewHolder(binding.root){
+        //
 
         fun bind(shopsWithReceipts: ShopsWithReceipts){
             binding.apply {
+                //val swr = shopsWithReceipts.receipt[0]
+
                 storeName.text = shopsWithReceipts.shop.shopName
                 //shopsWithReceipts.receipt.size
                 //receiptDate.text = shopsWithReceipts.receipt[1].receipt.createdDateFormatted
