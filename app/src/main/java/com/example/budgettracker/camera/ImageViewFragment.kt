@@ -41,6 +41,7 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
     private val viewModel: CameraFragmentViewModel by viewModels()
     lateinit var jTextEntityExtractor: EntityExtractor
     private var jIsModelAvailable = false
+    //testing
 
     private lateinit var safeContext: Context
 
@@ -51,7 +52,7 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        //
         //EntityExtractor object configured with EntityExtractorOptions
          jTextEntityExtractor = EntityExtraction.getClient(
             EntityExtractorOptions.Builder(EntityExtractorOptions.ENGLISH)
@@ -77,8 +78,10 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
            // val takenImage = data?.extras?.get("data") as Bitmap
             val takenImage = BitmapFactory.decodeFile(imageFile.absolutePath)
             imageView.setImageBitmap(takenImage)
+            //update mIsModelAvailable and mTextEntityExtractor in viewModel
             viewModel.mIsModelAvailable = jIsModelAvailable
             viewModel.mTextEntityExtractor = jTextEntityExtractor
+            //pass the captured image to textRecognition in viewModel
             viewModel.textRecognition(takenImage)
         }else{
             super.onActivityResult(requestCode, resultCode, data)
@@ -86,6 +89,7 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
 
     }
 
+    //
     private fun takePicture(){
 
         val takePicture = Intent(MediaStore.ACTION_IMAGE_CAPTURE)

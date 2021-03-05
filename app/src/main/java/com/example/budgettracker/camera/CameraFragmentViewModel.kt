@@ -1,14 +1,9 @@
 package com.example.budgettracker.camera
 
-import android.app.Application
 import android.graphics.Bitmap
 import android.util.Log
-import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.example.budgettracker.camera.CameraFragment.Companion.TAG
 import com.example.budgettracker.data.ReceiptDao
 import com.google.mlkit.nl.entityextraction.*
 import com.google.mlkit.vision.common.InputImage
@@ -17,10 +12,15 @@ import com.google.mlkit.vision.text.TextRecognition
 
 class CameraFragmentViewModel @ViewModelInject constructor(
     private val receiptDao: ReceiptDao): ViewModel() {
-
-    private lateinit var mEntityParams: EntityExtractionParams
     lateinit var mTextEntityExtractor: EntityExtractor
+    //
     var mIsModelAvailable = false
+    //list to hold all items detected in a receipt
+    private var productList = mutableListOf<String>()
+    //list to hold only prices detected
+    private var priceList = mutableListOf<String>()
+    //list to hold only names of product
+    private var productNameList = mutableListOf<String>()
 
     //Pass the captured image to MLKit OCR
     fun textRecognition(image: Bitmap) {
@@ -29,7 +29,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
 
         val result = recognizer.process(image)
             .addOnSuccessListener { visionText ->
-                processTextBlock(visionText)
+                tescoProcessTextBlock(visionText)
                 /*for (block in visionText.textBlocks){
                     val blockText = block.text
                     for (line in block.lines) {
@@ -41,53 +41,61 @@ class CameraFragmentViewModel @ViewModelInject constructor(
             }
             .addOnFailureListener { e ->
             }
-
     }
 
+    //Process MLKit text using algorithm for Tesco Store receipts
+    private fun tescoProcessTextBlock(result: Text) {
 
-
-    //Process MLKit text
-    private fun processTextBlock(result: Text) {
-        //
-        if (mIsModelAvailable.not()){
-            return
-        }
         val resultText = result.text
         for (block in result.textBlocks) {
             val blockText = block.text
             for (line in block.lines) {
                 val lineText = line.text
-                //Log.i("ImageViewFragment",lineText)
-                 mEntityParams =
-                    EntityExtractionParams.Builder(lineText)
-                        //.setEntityTypesFilter(setOf(Entity.TYPE_MONEY))
-                        .build()
-                            mTextEntityExtractor
-                            .annotate(mEntityParams)
-                        .addOnSuccessListener { entityAn ->
-                            for (entityAnnotation in entityAn) {
-                                val entities: List<Entity> = entityAnnotation.entities
-                                for (entity in entities) {
-                                    when (entity) {
-                                        is MoneyEntity -> {
-                                            Log.d(TAG, "Currency: ${entity.unnormalizedCurrency}")
-                                            Log.d(TAG, "Integer part: ${entity.integerPart}")
-                                            Log.d(TAG, "Fractional Part: ${entity.fractionalPart}")
-                                        }
-                                        else -> {
-                                            Log.d(TAG, "  $entity")
-                                        }
-                                    }
-                                }
-                            }
+                //store all lines in productList
+                productList.add(lineText)
+
+                //Take every line that starts with an "EUR" or "FUR"and assume this to be the price
+                if(lineText[0] == 'E' || lineText[0] == 'F' && lineText[1] == 'U' && lineText[2] == 'R'){
+                    //remove the "EUR" from the price
+                    var sansEUR = String()
+                    for (i in lineText.indices){
+                        if (i > 2){
+                            sansEUR += lineText[i].toString()
                         }
+                    }
+                    //if any char is an 'O' or 'o', substitute with a "0"
+                    var finalPrice = String()
+                    for (i in sansEUR.indices){
+                        finalPrice += if (sansEUR[i] == 'O' || sansEUR[i] == 'o'){
+                            "0"
+                        }else{
+                            sansEUR[i].toString()
+                        }
+                    }
+                    //add this to the priceList
+                    priceList.add(finalPrice)
+                }
             }
         }
+        //Extract only the names of the product from the product list
+        for (i in productList.indices){
+            if (i <= priceList.size ){
+                productNameList.add(productList[i])
+            }
+        }
+
+        Log.i("ImageViewFragment","${productList.size}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
+        Log.i("ImageViewFragment Price","${priceList.size}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2")
+        Log.i("ImageViewFragment name","${productNameList.size}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!3")
+        for (i in productList){
+            Log.i("ImageViewFragment","$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4")
+        }
+        for(i in priceList){
+            Log.i("ImageViewFragment Price","$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!5")
+        }
+        for(i in productNameList){
+            Log.i("ImageViewFragment names","$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!6")
+        }
     }
-
-
-
     //Use entity extraction to extract the prices from the captured string
-
-
 }
