@@ -42,7 +42,7 @@ data class Receipt(
 @Entity(tableName = "product_table")
 data class Product(
     val product: String,
-    val price: Double = 0.0,
+    val price: String,
     val productReceiptId: Int,//fk
     @PrimaryKey(autoGenerate = true) val PID: Int = 0
 )

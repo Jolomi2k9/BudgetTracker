@@ -1,17 +1,13 @@
 package com.example.budgettracker.data
 
-import android.content.Context
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.budgettracker.di.ApplicationScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.util.*
 import javax.inject.Inject
 import javax.inject.Provider
-import kotlin.collections.ArrayList
 
 /**
  * Trigger Room code generation by annotating class.
@@ -63,58 +59,22 @@ abstract class ReceiptDatabase : RoomDatabase(){
             val hey1 = receipts[0]
             val rKey = hey1.receiptId
             //insert into products
-            val products = listOf(
-                            Product("CKD CHICKEN",3.50,rKey),
-                            Product("COCOA POWDER",1.79,rKey),
-                            Product("MILK CHOCOLATE",1.09,rKey),
-                            Product("FRESH PROTEIN",1.89,rKey),
-                            Product("TESCO TEABAGS",2.50,rKey),
-                            Product("PEELER",1.99,rKey)
-            )
+           /* val products = listOf(
+                            Product("CKD CHICKEN","3.50",rKey),
+                            Product("COCOA POWDER","1.79",rKey),
+                            Product("MILK CHOCOLATE","1.09",rKey),
+                            Product("FRESH PROTEIN","1.89",rKey),
+                            Product("TESCO TEABAGS","2.50",rKey),
+                            Product("PEELER","1.99",rKey)
+            )*/
             // we use this coroutine to run suspends functions,
             //which can only be run by coroutines
-            applicationScope.launch{
+            /*applicationScope.launch{
                 shops.forEach { dao.insertShop(it)}
                 receipts.forEach { dao.insertReceipt(it)}
                 products.forEach { dao.insertProduct(it)}
 
-            }
-
+            }*/
         }
     }
-
-    /*companion object {
-
-
-        *//**
-         * The value of a volatile variable will never be cached, and all
-         * writes and reads will be done to and from the main memory.
-         * *//*
-        @Volatile
-        private var INSTANCE: ReceiptDatabase? = null
-
-        fun getInstance(context: Context): ReceiptDatabase {
-
-            synchronized(this) {}
-
-            var instance = INSTANCE
-
-            if (instance == null) {
-                instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    ReceiptDatabase::class.java,
-                    "sleep_history_database")
-                    .fallbackToDestructiveMigration()
-                    .build()
-                INSTANCE = instance
-
-            }
-            return instance
-        }
-
-    }
-*/
-
-
-
 }

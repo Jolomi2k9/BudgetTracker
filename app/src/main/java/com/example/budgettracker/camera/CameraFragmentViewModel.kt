@@ -4,14 +4,22 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel
+import com.example.budgettracker.data.Product
+import com.example.budgettracker.data.Receipt
 import com.example.budgettracker.data.ReceiptDao
+import com.example.budgettracker.data.Shop
+import com.example.budgettracker.di.ApplicationScope
 import com.google.mlkit.nl.entityextraction.*
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 class CameraFragmentViewModel @ViewModelInject constructor(
-    private val receiptDao: ReceiptDao): ViewModel() {
+    private val receiptDao: ReceiptDao,
+    @ApplicationScope private val applicationScope: CoroutineScope
+): ViewModel() {
     lateinit var mTextEntityExtractor: EntityExtractor
     //
     var mIsModelAvailable = false
@@ -21,7 +29,8 @@ class CameraFragmentViewModel @ViewModelInject constructor(
     private var priceList = mutableListOf<String>()
     //list to hold only names of product
     private var productNameList = mutableListOf<String>()
-
+    //list to hold items of class "Product"
+    private var products = mutableListOf<Product>()
     //Pass the captured image to MLKit OCR
     fun textRecognition(image: Bitmap) {
         val image = InputImage.fromBitmap(image, 0)
@@ -84,7 +93,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
             }
         }
 
-        Log.i("ImageViewFragment","${productList.size}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
+        /*Log.i("ImageViewFragment","${productList.size}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
         Log.i("ImageViewFragment Price","${priceList.size}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2")
         Log.i("ImageViewFragment name","${productNameList.size}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!3")
         for (i in productList){
@@ -95,6 +104,33 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         }
         for(i in productNameList){
             Log.i("ImageViewFragment names","$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!6")
+        }*/
+
+        //insert into shops
+        val shops = listOf(Shop("Tesco"))
+        //get shops primary key
+        val hey = shops[0]
+        val sKey = hey.shopId
+        //insert into receipts
+        val receipts = listOf(Receipt(sKey))
+        //get receipt primary key
+        val hey1 = receipts[0]
+        val rKey = hey1.receiptId
+
+        //prepare products to be inserted into database
+        for (i in priceList.indices){
+             //products = listOf(Product(productNameList[i],priceList[i],rKey))
+             products.add(Product(productNameList[i],priceList[i],rKey))
+        }
+
+
+        //Insert extracted data into database
+        applicationScope.launch{
+            Log.i("ImageView appScope","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
+            shops.forEach { receiptDao.insertShop(it)}
+            receipts.forEach { receiptDao.insertReceipt(it)}
+            products.forEach { receiptDao.insertProduct(it)}
+            //products.forEach { receiptDao.insertProduct(it)}
         }
     }
     //Use entity extraction to extract the prices from the captured string
