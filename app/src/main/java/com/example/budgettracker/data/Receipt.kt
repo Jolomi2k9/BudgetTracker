@@ -20,7 +20,7 @@ data class Shop(
 )
 
 
-//Table for the receipts ID
+//Table for the receipts
 @Entity(tableName = "receipt_table")
 /**Make parcelable to be able to send this object between different fragments*/
 @Parcelize
@@ -37,7 +37,6 @@ data class Receipt(
         get() = DateFormat.getDateInstance().format(created)
 }
 
-
 //Table for purchased products
 @Entity(tableName = "product_table")
 data class Product(
@@ -46,7 +45,6 @@ data class Product(
     val productReceiptId: Int,//fk
     @PrimaryKey(autoGenerate = true) val PID: Int = 0
 )
-
 
 //Relationship between the Receipt entity and the Product entity
 data class ReceiptsWithProducts(
@@ -57,7 +55,6 @@ data class ReceiptsWithProducts(
     )
     val product: List<Product>
 )
-
 
 //Relationship between the Shop entity and the ReceiptsWithProducts
 data class ShopsWithReceipts(

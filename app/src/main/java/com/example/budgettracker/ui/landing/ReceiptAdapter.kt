@@ -53,7 +53,7 @@ import com.example.budgettracker.databinding.ItemReceiptBinding
 
 }*/
 //Adapter to handle a list of receipts
-class ReceiptAdapter : ListAdapter<ShopsWithReceipts, ReceiptAdapter.ReceiptViewHolder>(DiffCallback()){
+class ReceiptAdapter(private val listener: onItemClickListener) : ListAdapter<ShopsWithReceipts, ReceiptAdapter.ReceiptViewHolder>(DiffCallback()){
 
 
     //Where recyclerview can get new items in the list
@@ -70,9 +70,24 @@ class ReceiptAdapter : ListAdapter<ShopsWithReceipts, ReceiptAdapter.ReceiptView
         holder.bind(currentItem)
     }
 
-    class ReceiptViewHolder(private val binding: ItemReceiptBinding) : RecyclerView.ViewHolder(binding.root){
-        //
+    inner class ReceiptViewHolder(private val binding: ItemReceiptBinding) : RecyclerView.ViewHolder(binding.root){
+        //forward to onItemClickListener
+        init {
+            //reference to views
+            binding.apply {
+                root.setOnClickListener {
+                    //get position of item that was clicked
+                    val position = adapterPosition
+                    //check that the item  clicked is still valid and not -1
+                    if(position != RecyclerView.NO_POSITION){
+                        val shopsWithReceipts = getItem(position)
+                        listener.onItemClick(shopsWithReceipts)
+                    }
 
+                }
+            }
+        }
+        //
         fun bind(shopsWithReceipts: ShopsWithReceipts){
             binding.apply {
                 //val swr = shopsWithReceipts.receipt[0]
@@ -84,9 +99,14 @@ class ReceiptAdapter : ListAdapter<ShopsWithReceipts, ReceiptAdapter.ReceiptView
             }
         }
     }
+    //Click listener for items on the landing page
+    interface onItemClickListener{
+        fun onItemClick(shopsWithReceipts: ShopsWithReceipts)
+    }
+
     //to enable the ListAdapter to compare list items
     class DiffCallback : DiffUtil.ItemCallback<ShopsWithReceipts>(){
-        //uniquely compare items
+        //uniquely identify an item
         override fun areItemsTheSame(oldItem: ShopsWithReceipts, newItem: ShopsWithReceipts) =
             oldItem.receipt == newItem.receipt
 

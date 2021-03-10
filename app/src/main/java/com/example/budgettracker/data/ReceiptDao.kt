@@ -42,7 +42,7 @@ interface ReceiptDao {
     @Delete
     suspend fun delete(receipt: Receipt)
 
-   
+
 
 
 }
