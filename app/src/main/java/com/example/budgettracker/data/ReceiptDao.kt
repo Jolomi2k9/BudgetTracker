@@ -15,10 +15,19 @@ interface ReceiptDao {
     @Query("SELECT * FROM receipt_table")
     fun getReceipt(): Flow<List<Receipt>>
 
+
+    //Retrieve all data in the product table
+    @Query("SELECT * FROM product_table")
+    fun getProduct(): Flow<List<Product>>
+
     //
     @Transaction
     @Query("SELECT * FROM shop_table")
     fun  getShopsWithReceipts() : Flow<List<ShopsWithReceipts>>
+
+
+    @Query("SELECT * FROM shop_table")
+    fun  getShopsId() : List<Shop>
 
 
     /*Insert into the database and define action to take if we

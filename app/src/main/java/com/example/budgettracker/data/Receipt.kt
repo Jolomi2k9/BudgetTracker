@@ -39,12 +39,13 @@ data class Receipt(
 
 //Table for purchased products
 @Entity(tableName = "product_table")
+@Parcelize
 data class Product(
     val product: String,
     val price: String,
     val productReceiptId: Int,//fk
-    @PrimaryKey(autoGenerate = true) val PID: Int = 0
-)
+    @PrimaryKey(autoGenerate = true) val productID: Int = 0
+) : Parcelable
 
 //Relationship between the Receipt entity and the Product entity
 data class ReceiptsWithProducts(

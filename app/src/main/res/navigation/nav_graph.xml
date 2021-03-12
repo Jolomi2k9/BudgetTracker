@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_landingFragment_to_imageViewFragment"
             app:destination="@id/imageViewFragment" />
+        <action
+            android:id="@+id/action_landingFragment_to_receiptFragment"
+            app:destination="@id/receiptFragment" />
     </fragment>
     <fragment
         android:id="@+id/cameraFragment"
@@ -23,5 +26,21 @@
         android:id="@+id/imageViewFragment"
         android:name="com.example.budgettracker.camera.ImageViewFragment"
         android:label="ImageViewFragment"
-        tools:layout="@layout/fragment_imageview"/>
+        tools:layout="@layout/fragment_imageview">
+        <action
+            android:id="@+id/action_imageViewFragment_to_receiptFragment"
+            app:destination="@id/receiptFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/receiptFragment"
+        android:name="com.example.budgettracker.ui.receipts.ReceiptFragment"
+        android:label="fragment_receipt"
+        tools:layout="@layout/fragment_receipt" >
+        <argument
+            android:name="receipt"
+            app:argType="com.example.budgettracker.data.Receipt" />
+        <argument
+            android:name="product"
+            app:argType="com.example.budgettracker.data.Product" />
+    </fragment>
 </navigation>

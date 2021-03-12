@@ -108,23 +108,19 @@ class LandingFragment : Fragment(R.layout.fragment_landing), ReceiptAdapter.onIt
                 }
             }
         }
-
         //Activate the options menu in fragment
         //setHasOptionsMenu(true)
 
     }
-
     override fun onItemClick(shopsWithReceipts: ShopsWithReceipts) {
         //delegate to viewmodel
         viewModel.onReceiptSelected(shopsWithReceipts)
     }
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_fragment_receipt,menu)
 
 
     }
-
     //Define action to take when a menu item is clicked
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
@@ -148,8 +144,5 @@ class LandingFragment : Fragment(R.layout.fragment_landing), ReceiptAdapter.onIt
             //return false to indicate the click was not handled
             else -> super.onOptionsItemSelected(item)
         }
-
     }
-
-
 }

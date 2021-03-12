@@ -1,11 +1,13 @@
 package com.example.budgettracker.data
 
+import android.util.Log
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.budgettracker.di.ApplicationScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.util.concurrent.Flow
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -48,10 +50,20 @@ abstract class ReceiptDatabase : RoomDatabase(){
             //
             val dao = database.get().receiptDao()
 
+            //var sKey = 0
+            //ar bKey: List<Shop>
+
             //insert into shops
-            val shops = listOf(Shop("Tesco"))
+            val shops = listOf(Shop("Tesco4"))
+            //Log.i("ReceiptDatabase","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4")
+
             //get shops primary key
+                /*val bKey = dao.getShopsId()
+                var mKey = bKey
+                Log.i("ReceiptDatabase","${mKey}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!6")*/
+
             val hey = shops[0]
+
             val sKey = hey.shopId
             //insert into receipts
             val receipts = listOf(Receipt(sKey))
@@ -59,22 +71,21 @@ abstract class ReceiptDatabase : RoomDatabase(){
             val hey1 = receipts[0]
             val rKey = hey1.receiptId
             //insert into products
-           /* val products = listOf(
+            val products = listOf(
                             Product("CKD CHICKEN","3.50",rKey),
                             Product("COCOA POWDER","1.79",rKey),
                             Product("MILK CHOCOLATE","1.09",rKey),
                             Product("FRESH PROTEIN","1.89",rKey),
                             Product("TESCO TEABAGS","2.50",rKey),
                             Product("PEELER","1.99",rKey)
-            )*/
+            )
             // we use this coroutine to run suspends functions,
             //which can only be run by coroutines
-            /*applicationScope.launch{
+            applicationScope.launch{
                 shops.forEach { dao.insertShop(it)}
                 receipts.forEach { dao.insertReceipt(it)}
                 products.forEach { dao.insertProduct(it)}
-
-            }*/
+            }
         }
     }
 }

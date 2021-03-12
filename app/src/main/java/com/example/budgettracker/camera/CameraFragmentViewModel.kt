@@ -107,7 +107,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         }*/
 
         //insert into shops
-        val shops = listOf(Shop("Tesco"))
+        val shops = listOf(Shop("Tesco4"))
         //get shops primary key
         val hey = shops[0]
         val sKey = hey.shopId

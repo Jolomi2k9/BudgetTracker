@@ -69,9 +69,7 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
         }else{
             takePicture()
         }
-
     }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         //check if user has successfully taken a picture with the camera
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK){
@@ -88,7 +86,6 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
         }
 
     }
-
     //
     private fun takePicture(){
 
@@ -103,11 +100,9 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
         // Toast.makeText(this, "No camera detected!", Toast.LENGTH_LONG).show()
         //}
     }
-
     private fun getImageFile(fileName: String): File {
         //access package-specific directories
         val storageDirectory = safeContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         return File.createTempFile(fileName, ".jpg", storageDirectory)
     }
-
 }
