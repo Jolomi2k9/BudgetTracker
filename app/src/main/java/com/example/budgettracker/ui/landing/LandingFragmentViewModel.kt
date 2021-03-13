@@ -35,6 +35,7 @@ class LandingFragmentViewModel @ViewModelInject constructor(
 
     fun onReceiptSwiped(shopsWithReceipts: ShopsWithReceipts) = viewModelScope.launch {
         receiptDao.delete(shopsWithReceipts.receipt[0].receipt)
+        //receiptDao.delete(shopsWithReceipts.receipt.forEach {it.receipt})
         //undo the delete
         receiptEventChannel.send(ReceiptEvent.ShowDeleteReceiptMessage(shopsWithReceipts))
     }

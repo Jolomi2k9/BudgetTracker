@@ -45,45 +45,82 @@ abstract class ReceiptDatabase : RoomDatabase(){
         @ApplicationScope private val applicationScope: CoroutineScope
     ) : RoomDatabase.Callback(){
         //executed the first time the database is created
-        override fun onCreate(db: SupportSQLiteDatabase) {
+        override fun onCreate(db: SupportSQLiteDatabase){
             super.onCreate(db)
             //
             val dao = database.get().receiptDao()
 
-            //var sKey = 0
-            //ar bKey: List<Shop>
 
-            //insert into shops
-            val shops = listOf(Shop("Tesco4"))
-            //Log.i("ReceiptDatabase","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4")
-
-            //get shops primary key
-                /*val bKey = dao.getShopsId()
-                var mKey = bKey
-                Log.i("ReceiptDatabase","${mKey}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!6")*/
-
-            val hey = shops[0]
-
-            val sKey = hey.shopId
-            //insert into receipts
-            val receipts = listOf(Receipt(sKey))
-            //get receipt primary key
-            val hey1 = receipts[0]
-            val rKey = hey1.receiptId
-            //insert into products
-            val products = listOf(
-                            Product("CKD CHICKEN","3.50",rKey),
-                            Product("COCOA POWDER","1.79",rKey),
-                            Product("MILK CHOCOLATE","1.09",rKey),
-                            Product("FRESH PROTEIN","1.89",rKey),
-                            Product("TESCO TEABAGS","2.50",rKey),
-                            Product("PEELER","1.99",rKey)
-            )
             // we use this coroutine to run suspends functions,
             //which can only be run by coroutines
-            applicationScope.launch{
+            applicationScope.launch {
+                //Log.i("Receipt","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
+                var sKey = 0
+                var rKey = 0
+                //create shop list
+                val shops = listOf(Shop("Tesco18"))
+                //Insert into shops table
                 shops.forEach { dao.insertShop(it)}
+                //get auto generated primary key from Shops table
+                val bKey = dao.getShopsId()
+                bKey.forEach {
+                    sKey = it.shopId
+                }
+                //create receipt list
+                val receipts = listOf(Receipt(sKey))
+                //insert into receipt table
                 receipts.forEach { dao.insertReceipt(it)}
+                //get auto generated primary key from receipt table
+                val cKey = dao.getReceiptId()
+                cKey.forEach {
+                    rKey = it.receiptId
+                }
+                //create product lists of receipt products
+                val products = listOf(
+                    Product("CKD CHICKEN","3.50",rKey),
+                    Product("COCOA POWDER","1.79",rKey),
+                    Product("MILK CHOCOLATE","1.09",rKey),
+                    Product("FRESH PROTEIN","1.89",rKey),
+                    Product("TESCO TEABAGS","2.50",rKey),
+                    Product("PEELER","1.99",rKey)
+                )
+                //Insert into products table
+                products.forEach { dao.insertProduct(it)}
+            }
+
+            applicationScope.launch {
+                var sKey = 0
+                var rKey = 0
+                //create shop list
+                val shops = listOf(Shop("Dunnes"))
+                //Insert into shops table
+                shops.forEach { dao.insertShop(it)}
+                //get auto generated primary key from Shops table
+                val bKey = dao.getShopsId()
+                bKey.forEach {
+                    sKey = it.shopId
+                }
+                //create receipt list
+                val receipts = listOf(Receipt(sKey))
+                //insert into receipt table
+                receipts.forEach { dao.insertReceipt(it)}
+                //get auto generated primary key from receipt table
+                val cKey = dao.getReceiptId()
+                cKey.forEach {
+                    rKey = it.receiptId
+                }
+                //create product lists of receipt products
+                val products = listOf(
+                    Product("Soda Bread","0.59",rKey),
+                    Product("HB ICEBERGER","2.50",rKey),
+                    Product("PEELER","1.99",rKey),
+                    Product("MOUTHWASH","3.62",rKey),
+                    Product("FANTA","1.50",rKey),
+                    Product("FROZEN PIZZA","3.50",rKey),
+                    Product("FROZEN PIZZA","3.50",rKey),
+                    Product("CEREAL","1.99",rKey)
+                )
+                //Insert into products table
                 products.forEach { dao.insertProduct(it)}
             }
         }

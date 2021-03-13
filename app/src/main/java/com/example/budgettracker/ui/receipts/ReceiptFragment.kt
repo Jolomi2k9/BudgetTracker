@@ -30,6 +30,5 @@ class ReceiptFragment : Fragment(R.layout.fragment_receipt){
                 layoutManager = LinearLayoutManager(requireContext())
             }
         }
-
     }
 }

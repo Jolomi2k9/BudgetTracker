@@ -15,6 +15,9 @@ interface ReceiptDao {
     @Query("SELECT * FROM receipt_table")
     fun getReceipt(): Flow<List<Receipt>>
 
+    @Query("SELECT * FROM receipt_table")
+    fun  getReceiptId() : List<Receipt>
+
 
     //Retrieve all data in the product table
     @Query("SELECT * FROM product_table")

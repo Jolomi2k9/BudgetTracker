@@ -107,7 +107,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         }*/
 
         //insert into shops
-        val shops = listOf(Shop("Tesco4"))
+        /*val shops = listOf(Shop("Tesco4"))
         //get shops primary key
         val hey = shops[0]
         val sKey = hey.shopId
@@ -115,23 +115,55 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         val receipts = listOf(Receipt(sKey))
         //get receipt primary key
         val hey1 = receipts[0]
-        val rKey = hey1.receiptId
+        val rKey = hey1.receiptId*/
 
         //prepare products to be inserted into database
-        for (i in priceList.indices){
+        /*for (i in priceList.indices){
              //products = listOf(Product(productNameList[i],priceList[i],rKey))
              products.add(Product(productNameList[i],priceList[i],rKey))
-        }
+        }*/
 
 
         //Insert extracted data into database
-        applicationScope.launch{
+        /*applicationScope.launch{
             Log.i("ImageView appScope","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
             shops.forEach { receiptDao.insertShop(it)}
             receipts.forEach { receiptDao.insertReceipt(it)}
             products.forEach { receiptDao.insertProduct(it)}
             //products.forEach { receiptDao.insertProduct(it)}
+        }*/
+
+        applicationScope.launch {
+            var sKey = 0
+            var rKey = 0
+            Log.i("Receipt","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2")
+            //create shop list
+            val shops = listOf(Shop("Tesco"))
+            //Insert into shops table
+            shops.forEach { receiptDao.insertShop(it)}
+            //get auto generated primary key from Shops table
+            val bKey = receiptDao.getShopsId()
+            bKey.forEach {
+                sKey = it.shopId
+            }
+            //create receipt list
+            val receipts = listOf(Receipt(sKey))
+            //insert into receipt table
+            receipts.forEach { receiptDao.insertReceipt(it)}
+            //get auto generated primary key from receipt table
+            val cKey = receiptDao.getReceiptId()
+            cKey.forEach {
+                rKey = it.receiptId
+            }
+            //create product lists of receipt products
+            for (i in priceList.indices){
+                //products = listOf(Product(productNameList[i],priceList[i],rKey))
+                products.add(Product(productNameList[i],priceList[i],rKey))
+            }
+            //Insert into products table
+            products.forEach { receiptDao.insertProduct(it)}
         }
+
     }
     //Use entity extraction to extract the prices from the captured string
 }

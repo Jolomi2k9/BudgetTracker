@@ -1,12 +1,11 @@
 package com.example.budgettracker.ui.landing
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.budgettracker.data.Receipt
-import com.example.budgettracker.data.ReceiptsWithProducts
 import com.example.budgettracker.data.ShopsWithReceipts
 import com.example.budgettracker.databinding.ItemReceiptBinding
 
@@ -90,12 +89,23 @@ class ReceiptAdapter(private val listener: onItemClickListener) : ListAdapter<Sh
         //
         fun bind(shopsWithReceipts: ShopsWithReceipts){
             binding.apply {
-                //val swr = shopsWithReceipts.receipt[0]
-
+                //display the current store name
                 storeName.text = shopsWithReceipts.shop.shopName
-                //shopsWithReceipts.receipt.size
-                //receiptDate.text = shopsWithReceipts.receipt[1].receipt.createdDateFormatted
-                //totalPrice.text = shopsWithReceipts.receipt[0].product[0].price.toString()
+                //display the date the receipt was created
+                shopsWithReceipts.receipt.forEach {
+                    receiptDate.text = it.receipt.createdDateFormatted
+                }
+                //products total
+                val test = mutableListOf<Double>()
+                shopsWithReceipts.receipt.forEach {
+                    //add all the product prices in the price list
+                    it.product.forEach {
+                         test.add(it.price.toDouble())
+                    }
+                    //display the sum of all the items in the price list
+                    totalPrice.text = test.sum().toString()
+                    //Log.i("Receipt","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2")
+                }
             }
         }
     }
