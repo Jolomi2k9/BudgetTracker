@@ -1,6 +1,7 @@
 package com.example.budgettracker.data
 
 import androidx.room.*
+import com.example.budgettracker.ui.landing.SortOrder
 import kotlinx.coroutines.flow.Flow
 
 
@@ -12,9 +13,16 @@ interface ReceiptDao {
      * Retrieve data from the database using SQLLite queries.
      * Also define a flow of List of Receipt
      */
+
+    //specify the get queries based on sort order
+    fun getShopsWithReceipts(query: String, sortOrder: SortOrder): Flow<List<ShopsWithReceipts>> =
+        when (sortOrder){
+            SortOrder.BY_DATE -> getShopsWithReceiptsSortedByDateCreated(query)
+            SortOrder.BY_STORE -> getShopsWithReceiptsSortedByStoreName(query)
+        }
     @Query("SELECT * FROM receipt_table")
     fun getReceipt(): Flow<List<Receipt>>
-
+    //get all receipt in the receipt table
     @Query("SELECT * FROM receipt_table")
     fun  getReceiptId() : List<Receipt>
 
@@ -23,12 +31,17 @@ interface ReceiptDao {
     @Query("SELECT * FROM product_table")
     fun getProduct(): Flow<List<Product>>
 
-    //
+    //Get the receipt ordered by shop name
     @Transaction
-    @Query("SELECT * FROM shop_table")
-    fun  getShopsWithReceipts() : Flow<List<ShopsWithReceipts>>
+    @Query("SELECT * FROM shop_table WHERE shopName LIKE '%' || :searchQuery || '%' ORDER BY shopName")
+    fun  getShopsWithReceiptsSortedByStoreName(searchQuery: String) : Flow<List<ShopsWithReceipts>>
 
+    //Get the receipt ordered by the date it was created
+    @Transaction
+    @Query("SELECT * FROM shop_table WHERE shopName LIKE '%' || :searchQuery || '%' ")
+    fun  getShopsWithReceiptsSortedByDateCreated(searchQuery: String) : Flow<List<ShopsWithReceipts>>
 
+    //get all shops in the shop table
     @Query("SELECT * FROM shop_table")
     fun  getShopsId() : List<Shop>
 
@@ -52,7 +65,7 @@ interface ReceiptDao {
 
     /*Delete from the database*/
     @Delete
-    suspend fun delete(receipt: Receipt)
+    suspend fun delete(shop: Shop)
 
 
 

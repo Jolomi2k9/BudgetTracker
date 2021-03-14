@@ -2,6 +2,7 @@ package com.example.budgettracker.ui.landing
 
 import android.os.Bundle
 import android.view.*
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.budgettracker.R
 import com.example.budgettracker.data.ShopsWithReceipts
 import com.example.budgettracker.databinding.FragmentLandingBinding
+import com.example.budgettracker.util.onQueryTextChanged
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_landing.*
@@ -48,12 +50,9 @@ class LandingFragment : Fragment(R.layout.fragment_landing), ReceiptAdapter.onIt
             //
             receiptAdapter.submitList(it)
         }
-
     }*/
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?){
         super.onViewCreated(view, savedInstanceState)
-
         //binding to the view
         val binding = FragmentLandingBinding.bind(view)
         //get an instance of the receipt adapter
@@ -94,7 +93,6 @@ class LandingFragment : Fragment(R.layout.fragment_landing), ReceiptAdapter.onIt
             //whenever something in the database changes, the adapter is updated
             receiptAdapter.submitList(it)
         }
-
         //define scope so as to be cancelled when onStop is called and restarted when
         //onStart is called
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
@@ -109,21 +107,27 @@ class LandingFragment : Fragment(R.layout.fragment_landing), ReceiptAdapter.onIt
             }
         }
         //Activate the options menu in fragment
-        //setHasOptionsMenu(true)
-
+        setHasOptionsMenu(true)
     }
     override fun onItemClick(shopsWithReceipts: ShopsWithReceipts) {
         //delegate to viewmodel
         viewModel.onReceiptSelected(shopsWithReceipts)
     }
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    //
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater){
         inflater.inflate(R.menu.menu_fragment_receipt,menu)
+        //reference to the search view
+        val searchItem = menu.findItem(R.id.action_search)
+        val searchView = searchItem.actionView as SearchView
 
-
+        //call onQueryTextChanged from ViewExt file to handle queries
+        searchView.onQueryTextChanged {
+            //pass on queried text
+            viewModel.searchQuery.value = it
+        }
     }
     //Define action to take when a menu item is clicked
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
+    override fun onOptionsItemSelected(item: MenuItem): Boolean{
         //identify the item that was clicked
         return when(item.itemId){
             R.id.action_sort_by_store -> {
@@ -132,13 +136,12 @@ class LandingFragment : Fragment(R.layout.fragment_landing), ReceiptAdapter.onIt
                true
             }
             //
-            R.id.action_sort_by_date_created -> {
+            R.id.action_sort_by_date_created ->{
                 //action to take when item clicked
                 viewModel.sortOrder.value = SortOrder.BY_DATE
                 true
             }
-            R.id.action_export_receipts -> {
-
+            R.id.action_export_receipts ->{
                 true
             }
             //return false to indicate the click was not handled

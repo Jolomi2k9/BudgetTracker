@@ -29,9 +29,7 @@ class ReceiptDetailAdapter  : ListAdapter<Product, ReceiptDetailAdapter.ReceiptD
                 itemName.text = product.product
                 itemPrice.text = product.price
             }
-
         }
-
     }
     //to enable the ListAdapter to compare list items
     class DiffCallback : DiffUtil.ItemCallback<Product>(){
