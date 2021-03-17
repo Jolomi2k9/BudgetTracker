@@ -10,7 +10,7 @@ inline fun SearchView.onQueryTextChanged(crossinline listener: (String) -> Unit)
             //do nothing
             return true
         }
-
+        //
         override fun onQueryTextChange(newText: String?): Boolean {
             //trigger when something is typed in the search view
             //also return an empty string if the newText function is null

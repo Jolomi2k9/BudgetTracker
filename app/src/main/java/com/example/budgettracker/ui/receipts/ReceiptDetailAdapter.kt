@@ -1,5 +1,6 @@
 package com.example.budgettracker.ui.receipts
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -11,7 +12,7 @@ import com.example.budgettracker.databinding.DetailedItemsBinding
 import com.example.budgettracker.databinding.ItemReceiptBinding
 import com.example.budgettracker.ui.landing.ReceiptAdapter
 
-class ReceiptDetailAdapter  : ListAdapter<Product, ReceiptDetailAdapter.ReceiptDetailViewHolder>(DiffCallback()){
+class ReceiptDetailAdapter : ListAdapter<Product, ReceiptDetailAdapter.ReceiptDetailViewHolder>(DiffCallback()){
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReceiptDetailViewHolder {
         //create the needed binding object for the layout inflater
@@ -36,7 +37,7 @@ class ReceiptDetailAdapter  : ListAdapter<Product, ReceiptDetailAdapter.ReceiptD
         //uniquely compare items
         override fun areItemsTheSame(oldItem: Product, newItem: Product) =
             oldItem.productID == newItem.productID
-
+        //
         override fun areContentsTheSame(oldItem: Product, newItem: Product)  =
             oldItem == newItem
     }

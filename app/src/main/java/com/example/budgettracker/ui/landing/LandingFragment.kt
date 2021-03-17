@@ -1,18 +1,23 @@
 package com.example.budgettracker.ui.landing
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.budgettracker.R
+import com.example.budgettracker.data.Product
+import com.example.budgettracker.data.Receipt
 import com.example.budgettracker.data.ShopsWithReceipts
 import com.example.budgettracker.databinding.FragmentLandingBinding
+import com.example.budgettracker.util.exhaustive
 import com.example.budgettracker.util.onQueryTextChanged
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -82,12 +87,20 @@ class LandingFragment : Fragment(R.layout.fragment_landing), ReceiptAdapter.onIt
                         viewModel.onReceiptSwiped(receipt)
                     }
                 }).attachToRecyclerView(recyclerViewLanding)
+                //navigate to cameraFragment and scan new receipt
+                fabAddReceipt.setOnClickListener {
+                    viewModel.onAddNewReceiptClick()
+                }
+
             }
         }
         //button to navigate to the camera fragment and scan new receipt data
-        binding.fabAddReceipt.setOnClickListener { view : View ->
+        /*binding.fabAddReceipt.setOnClickListener { view : View ->
             view.findNavController().navigate(R.id.action_landingFragment_to_imageViewFragment)
-        }
+        }*/
+
+
+
         //observes our livedata in the receipt database
         viewModel.shopsWithReceipt.observe(viewLifecycleOwner){
             //whenever something in the database changes, the adapter is updated
@@ -97,13 +110,26 @@ class LandingFragment : Fragment(R.layout.fragment_landing), ReceiptAdapter.onIt
         //onStart is called
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.receiptEvent.collect {  event ->
-                //specify when to display message
+                //Turn this into an expression in order to get compile time safety
                 when(event){
+                    //specify when to display message
                     is LandingFragmentViewModel.ReceiptEvent.ShowDeleteReceiptMessage ->{
-                        //display Snack bar message and undo option
+                        //display Snack bar message
                         Snackbar.make(requireView(),"Receipt deleted!", Snackbar.LENGTH_LONG).show()
                     }
-                }
+                    is LandingFragmentViewModel.ReceiptEvent.NavigateToAddNewReceiptScreen -> {
+                        //navigate to the camera with compile time safety
+                        val action = LandingFragmentDirections.actionLandingFragmentToImageViewFragment()
+                        findNavController().navigate(action)
+                    }
+                    is LandingFragmentViewModel.ReceiptEvent.NavigateToReceiptDetailScreen -> {
+                        //navigate to detailed receipt screen and pass the receipt, also with compile time safety
+                        event.shopsWithReceipts.receipt.forEach {
+                            val action = LandingFragmentDirections.actionLandingFragmentToReceiptFragment(it.receipt)
+                            findNavController().navigate(action)
+                        }
+                    }
+                }.exhaustive
             }
         }
         //Activate the options menu in fragment
@@ -112,6 +138,7 @@ class LandingFragment : Fragment(R.layout.fragment_landing), ReceiptAdapter.onIt
     override fun onItemClick(shopsWithReceipts: ShopsWithReceipts) {
         //delegate to viewmodel
         viewModel.onReceiptSelected(shopsWithReceipts)
+
     }
     //
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater){

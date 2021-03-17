@@ -1,9 +1,11 @@
 package com.example.budgettracker.ui.landing
 
+import android.util.Log
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.budgettracker.data.Product
 import com.example.budgettracker.data.ReceiptDao
 import com.example.budgettracker.data.ShopsWithReceipts
 import kotlinx.coroutines.channels.Channel
@@ -35,10 +37,9 @@ class LandingFragmentViewModel @ViewModelInject constructor(
         sortOrder
     ){query, sortOrder ->
         Pair(query,sortOrder)
-    }.flatMapLatest { (query,sortOrder) ->
+    }.flatMapLatest {(query,sortOrder) ->
         receiptDao.getShopsWithReceipts(query,sortOrder)
     }
-
 
     //get receipt data from the database
     //val receipt = receiptDao.getReceipt().asLiveData()
@@ -46,9 +47,9 @@ class LandingFragmentViewModel @ViewModelInject constructor(
     val shopsWithReceipt = receiptFlow.asLiveData()
 
 
-    //
-    fun onReceiptSelected(shopsWithReceipts: ShopsWithReceipts){
-
+    //Navigate to detailed receipt view when item on landing page is clicked
+    fun onReceiptSelected(shopsWithReceipts: ShopsWithReceipts) = viewModelScope.launch{
+        receiptEventChannel.send(ReceiptEvent.NavigateToReceiptDetailScreen(shopsWithReceipts))
     }
 
     fun onReceiptSwiped(shopsWithReceipts: ShopsWithReceipts) = viewModelScope.launch {
@@ -58,9 +59,21 @@ class LandingFragmentViewModel @ViewModelInject constructor(
         receiptEventChannel.send(ReceiptEvent.ShowDeleteReceiptMessage(shopsWithReceipts))
     }
 
+    //handle click for the add new receipt button
+    fun onAddNewReceiptClick() = viewModelScope.launch {
+        //send this event to channel
+        //this emits event from the view model so the fragment can listen and take appropriate action
+        receiptEventChannel.send(ReceiptEvent.NavigateToAddNewReceiptScreen)
+    }
 
-    //For deleted message
+    //For event handling
     sealed class ReceiptEvent{
+        //create a single instance of to navigate to camera fragment
+        object NavigateToAddNewReceiptScreen : ReceiptEvent()
+        //Navigate to receipt detail view
+        //data class NavigateToReceiptDetailScreen(val shopsWithReceipts: ShopsWithReceipts) : ReceiptEvent()
+        data class NavigateToReceiptDetailScreen(val shopsWithReceipts: ShopsWithReceipts) : ReceiptEvent()
+        //for displaying delete message
         data class ShowDeleteReceiptMessage(val shopsWithReceipts: ShopsWithReceipts) : ReceiptEvent()
     }
 

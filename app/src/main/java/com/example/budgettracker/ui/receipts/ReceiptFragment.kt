@@ -1,12 +1,14 @@
 package com.example.budgettracker.ui.receipts
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.budgettracker.R
 import com.example.budgettracker.databinding.FragmentReceiptBinding
+import com.example.budgettracker.util.exhaustive
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -29,6 +31,10 @@ class ReceiptFragment : Fragment(R.layout.fragment_receipt){
                 //specify how layout manager should layout the items on screen
                 layoutManager = LinearLayoutManager(requireContext())
             }
+        }
+        //get the products from the view model and send it to the receiptDetailAdapter
+        viewModel.product.observe(viewLifecycleOwner){
+            receiptDetailAdapter.submitList(it)
         }
     }
 }

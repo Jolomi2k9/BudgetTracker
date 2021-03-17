@@ -3,9 +3,11 @@ package com.example.budgettracker.ui.landing
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.budgettracker.R
 import com.example.budgettracker.data.ShopsWithReceipts
 import com.example.budgettracker.databinding.ItemReceiptBinding
 
@@ -24,7 +26,6 @@ import com.example.budgettracker.databinding.ItemReceiptBinding
     }
         // Create the viewholder and binding for the item receipt view
 
-
     class ReceiptViewHolder(private val binding: ItemReceiptBinding) : RecyclerView.ViewHolder(binding.root){
 
         //function to put data into the views in layout
@@ -34,9 +35,6 @@ import com.example.budgettracker.databinding.ItemReceiptBinding
                 storeName.text = receipt.shopName
                 totalPrice.text = receipt.price.toString()
                 receiptDate.text = receipt.createdDateFormatted
-
-
-
             }*//*
         }
     }
@@ -82,7 +80,6 @@ class ReceiptAdapter(private val listener: onItemClickListener) : ListAdapter<Sh
                         val shopsWithReceipts = getItem(position)
                         listener.onItemClick(shopsWithReceipts)
                     }
-
                 }
             }
         }
@@ -97,7 +94,7 @@ class ReceiptAdapter(private val listener: onItemClickListener) : ListAdapter<Sh
                 }
                 //products total
                 val test = mutableListOf<Double>()
-                shopsWithReceipts.receipt.forEach {
+                shopsWithReceipts.receipt.forEach { it ->
                     //add all the product prices in the price list
                     it.product.forEach {
                          test.add(it.price.toDouble())
