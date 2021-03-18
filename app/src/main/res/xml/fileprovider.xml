@@ -4,4 +4,6 @@
         name="images"
         path="Pictures"/>
 
+    <files-path name="receipt_csv_files" path="."/>
+
 </paths>

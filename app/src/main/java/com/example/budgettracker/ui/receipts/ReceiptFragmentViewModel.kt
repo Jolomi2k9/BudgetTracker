@@ -5,7 +5,6 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
-import com.example.budgettracker.data.Product
 import com.example.budgettracker.data.Receipt
 import com.example.budgettracker.data.ReceiptDao
 
@@ -23,5 +22,5 @@ class ReceiptFragmentViewModel @ViewModelInject constructor(
 
     //using the retrieved receipt id get all the products associated with the receipt
     //from the product database
-    val product = receiptDao.getProduct(receiptID).asLiveData()
+    val product = receiptDao.getProductWithID(receiptID).asLiveData()
 }

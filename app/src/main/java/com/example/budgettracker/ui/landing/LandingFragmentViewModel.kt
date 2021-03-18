@@ -1,23 +1,37 @@
 package com.example.budgettracker.ui.landing
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.room.RoomMasterTable.TABLE_NAME
 import com.example.budgettracker.data.Product
 import com.example.budgettracker.data.ReceiptDao
+import com.example.budgettracker.data.Shop
 import com.example.budgettracker.data.ShopsWithReceipts
+import com.example.budgettracker.di.ApplicationScope
+import com.example.budgettracker.util.generateFile
+import com.example.budgettracker.util.goToFileIntent
+import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.io.File
 
 class LandingFragmentViewModel @ViewModelInject constructor(
-    private val receiptDao: ReceiptDao
+    private val receiptDao: ReceiptDao,
+    @ApplicationScope private val applicationScope: CoroutineScope
 ) : ViewModel() {
+
 
     //
     private val receiptEventChannel = Channel<ReceiptEvent>()
@@ -27,8 +41,12 @@ class LandingFragmentViewModel @ViewModelInject constructor(
     //By default the receipt will be sorted by date
     val sortOrder = MutableStateFlow(SortOrder.BY_DATE)
 
+    //create a csv file name
+    private val CSVFileName : String = "ReceiptProducts.csv"
+
     //search query
     val searchQuery = MutableStateFlow("")
+    //
 
     //translate into an sqlLite query.
     //combine and pass all the latest values
@@ -66,6 +84,29 @@ class LandingFragmentViewModel @ViewModelInject constructor(
         receiptEventChannel.send(ReceiptEvent.NavigateToAddNewReceiptScreen)
     }
 
+    fun exportReceiptDBToCSVFile(csvFile : File){
+        //
+        var product = listOf<Product>()
+        applicationScope.launch {
+             product = receiptDao.getProduct()
+        }
+        Log.i("Receipt","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2")
+        csvWriter().open(csvFile, append = false) {
+            // Header
+            writeRow(listOf("[id]", "Shops"))
+            //
+            /*product.forEachIndexed { index, shop ->
+                writeRow(listOf(index,shop.shopName))
+            }*/
+            product.forEachIndexed { index, product ->
+                writeRow(listOf(index,product.product))
+                Log.i("Receipt","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!3")
+            }
+
+        }
+
+    }
+
     //For event handling
     sealed class ReceiptEvent{
         //create a single instance of to navigate to camera fragment
@@ -76,6 +117,9 @@ class LandingFragmentViewModel @ViewModelInject constructor(
         //for displaying delete message
         data class ShowDeleteReceiptMessage(val shopsWithReceipts: ShopsWithReceipts) : ReceiptEvent()
     }
+
+
+
 
 }
 

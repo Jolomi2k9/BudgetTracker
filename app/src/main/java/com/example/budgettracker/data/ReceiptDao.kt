@@ -27,9 +27,13 @@ interface ReceiptDao {
     fun  getReceiptId() : List<Receipt>
 
 
-    //Retrieve all data in the product table
+    //Retrieve all data in the product table associated with a supplied receipt id
     @Query("SELECT * FROM product_table WHERE productReceiptId = :rKey")
-    fun getProduct(rKey: Int): Flow<List<Product>>
+    fun getProductWithID(rKey: Int): Flow<List<Product>>
+
+    //Retrieve all data in the product table
+    @Query("SELECT * FROM product_table ")
+    fun getProduct(): List<Product>
 
     //Get the receipt ordered by shop name
     @Transaction
