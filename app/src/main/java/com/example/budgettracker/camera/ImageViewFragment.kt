@@ -19,9 +19,13 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.example.budgettracker.R
 import com.example.budgettracker.data.ReceiptDatabase
 import com.example.budgettracker.databinding.FragmentImageviewBinding
+import com.example.budgettracker.ui.landing.LandingFragmentDirections
+import com.example.budgettracker.util.exhaustive
 import com.google.mlkit.nl.entityextraction.EntityExtraction
 import com.google.mlkit.nl.entityextraction.EntityExtractor
 import com.google.mlkit.nl.entityextraction.EntityExtractorOptions
@@ -29,6 +33,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_imageview.*
+import kotlinx.coroutines.flow.collect
 import java.io.File
 
 private const val FILE_NAME = "image.jpg"
@@ -52,28 +57,61 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val binding = FragmentImageviewBinding.bind(view)
         //
         //EntityExtractor object configured with EntityExtractorOptions
-         jTextEntityExtractor = EntityExtraction.getClient(
+        jTextEntityExtractor = EntityExtraction.getClient(
             EntityExtractorOptions.Builder(EntityExtractorOptions.ENGLISH)
-                .build())
+                .build()
+        )
         //Confirming the needed model is downloaded on the device
         jTextEntityExtractor.downloadModelIfNeeded()
             .addOnSuccessListener { _ ->
-                 jIsModelAvailable = true
+                jIsModelAvailable = true
             }
         //
-        if (ContextCompat.checkSelfPermission(safeContext, Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.CAMERA),110)
+        if (ContextCompat.checkSelfPermission(
+                safeContext,
+                Manifest.permission.CAMERA
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.CAMERA),
+                110
+            )
             takePicture()
-        }else{
+        } else {
             takePicture()
         }
+        //Navigate to the detail receipt fragment
+        binding.apply {
+            goToReceipt.setOnClickListener {
+                viewModel.onGoToDetailViewClick()
+            }
+        }
+        //define scope so as to be cancelled when onStop is called and restarted when
+        //onStart is called
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.cameraEvent.collect { event ->
+                when (event) {
+                    is CameraFragmentViewModel.CameraEvent.NavigateToReceiptDetailScreen -> {
+                        val action =
+                            ImageViewFragmentDirections.actionImageViewFragmentToReceiptFragment(
+                                event.receipt
+                            )
+                        findNavController().navigate(action)
+                    }
+                }.exhaustive
+            }
+        }
     }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         //check if user has successfully taken a picture with the camera
-        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK){
-           // val takenImage = data?.extras?.get("data") as Bitmap
+        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            // val takenImage = data?.extras?.get("data") as Bitmap
             val takenImage = BitmapFactory.decodeFile(imageFile.absolutePath)
             imageView.setImageBitmap(takenImage)
             //update mIsModelAvailable and mTextEntityExtractor in viewModel
@@ -81,18 +119,20 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
             viewModel.mTextEntityExtractor = jTextEntityExtractor
             //pass the captured image to textRecognition in viewModel
             viewModel.textRecognition(takenImage)
-        }else{
+        } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
 
     }
+
     //
-    private fun takePicture(){
+    private fun takePicture() {
 
         val takePicture = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         imageFile = getImageFile(FILE_NAME)
         //check for a camera
-        val fileProvider = FileProvider.getUriForFile(safeContext, "com.example.fileprovider", imageFile)
+        val fileProvider =
+            FileProvider.getUriForFile(safeContext, "com.example.fileprovider", imageFile)
         takePicture.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
         //if (takePicture.resolveActivity(this.packageManager) != null) {
         startActivityForResult(takePicture, REQUEST_CODE)
@@ -100,9 +140,12 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
         // Toast.makeText(this, "No camera detected!", Toast.LENGTH_LONG).show()
         //}
     }
+
     private fun getImageFile(fileName: String): File {
         //access package-specific directories
         val storageDirectory = safeContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         return File.createTempFile(fileName, ".jpg", storageDirectory)
     }
+
+
 }

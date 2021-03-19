@@ -2,11 +2,9 @@ package com.example.budgettracker.ui.landing
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -23,9 +21,7 @@ import com.example.budgettracker.util.goToFileIntent
 import com.example.budgettracker.util.onQueryTextChanged
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_landing.*
 import kotlinx.coroutines.flow.collect
-import javax.inject.Inject
 
 
 @AndroidEntryPoint
@@ -41,7 +37,7 @@ class LandingFragment : Fragment(R.layout.fragment_landing), ReceiptAdapter.onIt
     private val viewModel: LandingFragmentViewModel by viewModels()
 
     //create a csv file name
-    private val CSVFileName : String = "ReceiptProducts.csv"
+    private val csvFileName : String = "ReceiptProducts.csv"
     /*override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         //binding to the view
@@ -106,16 +102,12 @@ class LandingFragment : Fragment(R.layout.fragment_landing), ReceiptAdapter.onIt
                 fabAddReceipt.setOnClickListener {
                     viewModel.onAddNewReceiptClick()
                 }
-
             }
         }
         //button to navigate to the camera fragment and scan new receipt data
         /*binding.fabAddReceipt.setOnClickListener { view : View ->
             view.findNavController().navigate(R.id.action_landingFragment_to_imageViewFragment)
         }*/
-
-
-
         //observes our livedata in the receipt database
         viewModel.shopsWithReceipt.observe(viewLifecycleOwner){
             //whenever something in the database changes, the adapter is updated
@@ -178,23 +170,22 @@ class LandingFragment : Fragment(R.layout.fragment_landing), ReceiptAdapter.onIt
         //identify the item that was clicked
         return when(item.itemId){
             R.id.action_sort_by_store -> {
-                //action to take when item clicked
+                //action to take when item clicked - Sort by store name
                 viewModel.sortOrder.value = SortOrder.BY_STORE
                 true
             }
             //
             R.id.action_sort_by_date_created -> {
-                //action to take when item clicked
+                //action to take when item clicked - Sort by date created
                 viewModel.sortOrder.value = SortOrder.BY_DATE
                 true
             }
             R.id.action_export_receipts -> {
-                Log.i("Receipt","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!0")
-                val csvFile = generateFile(requireContext(), CSVFileName)
+                //generate a csv file using generateFile() in Utils.kt
+                val csvFile = generateFile(requireContext(), csvFileName)
                 //export the receipts
                 if (csvFile != null) {
                     //
-                    Log.i("Receipt","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
                     viewModel.exportReceiptDBToCSVFile(csvFile)
                     Toast.makeText(safeContext, "CSV file generated!", Toast.LENGTH_LONG).show()
                     val intent = goToFileIntent(requireContext(), csvFile)

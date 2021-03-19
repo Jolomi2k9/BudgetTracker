@@ -5,11 +5,16 @@ import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.budgettracker.R
+import com.example.budgettracker.camera.CameraFragmentViewModel
+import com.example.budgettracker.camera.ImageViewFragmentDirections
 import com.example.budgettracker.databinding.FragmentReceiptBinding
 import com.example.budgettracker.util.exhaustive
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 
 @AndroidEntryPoint
 class ReceiptFragment : Fragment(R.layout.fragment_receipt){
@@ -31,10 +36,30 @@ class ReceiptFragment : Fragment(R.layout.fragment_receipt){
                 //specify how layout manager should layout the items on screen
                 layoutManager = LinearLayoutManager(requireContext())
             }
+            fabReturnHome.setOnClickListener {
+                viewModel.onGoHomeClick()
+            }
         }
         //get the products from the view model and send it to the receiptDetailAdapter
         viewModel.product.observe(viewLifecycleOwner){
             receiptDetailAdapter.submitList(it)
         }
+
+        //define scope so as to be cancelled when onStop is called and restarted when
+        //onStart is called
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            viewModel.homeEvent.collect { event ->
+                when (event) {
+                    //Navigate to the home screen
+                    is ReceiptFragmentViewModel.HomeEvent.NavigateToHomeScreen -> {
+                            val action =
+                                ReceiptFragmentDirections.actionReceiptFragmentToLandingFragment(
+                                )
+                        findNavController().navigate(action)
+                    }
+                }.exhaustive
+            }
+        }
+
     }
 }

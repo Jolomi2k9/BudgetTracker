@@ -26,6 +26,10 @@ interface ReceiptDao {
     @Query("SELECT * FROM receipt_table")
     fun  getReceiptId() : List<Receipt>
 
+    //Retrieve all data in the receipt table associated with a supplied shop id
+    @Query("SELECT * FROM receipt_table WHERE shopReceiptId = :sKey")
+    fun getReceiptWithID(sKey: Int): List<Receipt>
+
 
     //Retrieve all data in the product table associated with a supplied receipt id
     @Query("SELECT * FROM product_table WHERE productReceiptId = :rKey")

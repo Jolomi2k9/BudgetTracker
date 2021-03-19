@@ -33,7 +33,7 @@ class LandingFragmentViewModel @ViewModelInject constructor(
 ) : ViewModel() {
 
 
-    //
+    //Use channels to send data between two coroutines
     private val receiptEventChannel = Channel<ReceiptEvent>()
     val receiptEvent = receiptEventChannel.receiveAsFlow()
 
@@ -84,13 +84,13 @@ class LandingFragmentViewModel @ViewModelInject constructor(
         receiptEventChannel.send(ReceiptEvent.NavigateToAddNewReceiptScreen)
     }
 
+    //write all receipts in the database to a csv file
     fun exportReceiptDBToCSVFile(csvFile : File){
         //
         var product = listOf<Product>()
         applicationScope.launch {
              product = receiptDao.getProduct()
         }
-        Log.i("Receipt","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2")
         csvWriter().open(csvFile, append = false) {
             // Header
             writeRow(listOf("[id]", "Shops"))
@@ -100,14 +100,11 @@ class LandingFragmentViewModel @ViewModelInject constructor(
             }*/
             product.forEachIndexed { index, product ->
                 writeRow(listOf(index,product.product))
-                Log.i("Receipt","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!3")
             }
-
         }
-
     }
 
-    //For event handling
+    //Representation of the different events to send to the fragments
     sealed class ReceiptEvent{
         //create a single instance of to navigate to camera fragment
         object NavigateToAddNewReceiptScreen : ReceiptEvent()
@@ -118,10 +115,9 @@ class LandingFragmentViewModel @ViewModelInject constructor(
         data class ShowDeleteReceiptMessage(val shopsWithReceipts: ShopsWithReceipts) : ReceiptEvent()
     }
 
-
-
-
 }
 
 //class used in sorting the database
 enum class SortOrder{ BY_STORE, BY_DATE}
+
+

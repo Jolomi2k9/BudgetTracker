@@ -4,22 +4,28 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel
-import com.example.budgettracker.data.Product
-import com.example.budgettracker.data.Receipt
-import com.example.budgettracker.data.ReceiptDao
-import com.example.budgettracker.data.Shop
+import androidx.lifecycle.viewModelScope
+import com.example.budgettracker.data.*
 import com.example.budgettracker.di.ApplicationScope
+import com.example.budgettracker.ui.landing.LandingFragmentViewModel
 import com.google.mlkit.nl.entityextraction.*
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class CameraFragmentViewModel @ViewModelInject constructor(
     private val receiptDao: ReceiptDao,
     @ApplicationScope private val applicationScope: CoroutineScope
 ): ViewModel() {
+
+    //Use channels to send data between two coroutines
+    private val cameraEventChannel = Channel<CameraEvent>()
+    val cameraEvent = cameraEventChannel.receiveAsFlow()
+    //
     lateinit var mTextEntityExtractor: EntityExtractor
     //
     var mIsModelAvailable = false
@@ -31,6 +37,8 @@ class CameraFragmentViewModel @ViewModelInject constructor(
     private var productNameList = mutableListOf<String>()
     //list to hold items of class "Product"
     private var products = mutableListOf<Product>()
+    //
+    private var rets = listOf<Receipt>()
     //Pass the captured image to MLKit OCR
     fun textRecognition(image: Bitmap) {
         val image = InputImage.fromBitmap(image, 0)
@@ -136,7 +144,6 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         applicationScope.launch {
             var sKey = 0
             var rKey = 0
-            Log.i("Receipt","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2")
             //create shop list
             val shops = listOf(Shop("Tesco"))
             //Insert into shops table
@@ -151,10 +158,13 @@ class CameraFragmentViewModel @ViewModelInject constructor(
             //insert into receipt table
             receipts.forEach { receiptDao.insertReceipt(it)}
             //get auto generated primary key from receipt table
-            val cKey = receiptDao.getReceiptId()
+            val cKey = receiptDao.getReceiptWithID(sKey)
             cKey.forEach {
                 rKey = it.receiptId
             }
+
+            //
+            rets = cKey
             //create product lists of receipt products
             for (i in priceList.indices){
                 //products = listOf(Product(productNameList[i],priceList[i],rKey))
@@ -165,5 +175,16 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         }
 
     }
-    //Use entity extraction to extract the prices from the captured string
+    //Navigate to the detailed receipt screen and pass the current receipt
+    fun onGoToDetailViewClick() = viewModelScope.launch{
+
+        rets.forEach { receipt ->
+            cameraEventChannel.send(CameraEvent.NavigateToReceiptDetailScreen(receipt))
+        }
+    }
+
+    //
+    sealed class CameraEvent{
+        data class NavigateToReceiptDetailScreen(val receipt: Receipt) : CameraEvent()
+    }
 }

@@ -18,11 +18,6 @@
             app:destination="@id/receiptFragment" />
     </fragment>
     <fragment
-        android:id="@+id/cameraFragment"
-        android:name="com.example.budgettracker.camera.CameraFragment"
-        android:label="fragment_camera"
-        tools:layout="@layout/fragment_camera" />
-    <fragment
         android:id="@+id/imageViewFragment"
         android:name="com.example.budgettracker.camera.ImageViewFragment"
         android:label="ImageViewFragment"
@@ -39,5 +34,8 @@
         <argument
             android:name="receipt"
             app:argType="com.example.budgettracker.data.Receipt" />
+        <action
+            android:id="@+id/action_receiptFragment_to_landingFragment"
+            app:destination="@id/landingFragment" />
     </fragment>
 </navigation>
