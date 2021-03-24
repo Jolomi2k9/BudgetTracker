@@ -20,7 +20,7 @@ import javax.inject.Provider
 @Database(entities = [Receipt::class,
                         Shop::class,
                         Product::class,
-                     ],version = 1)
+                     ],version = 2)
 /**
  * Make class abstract because Room will generate all the necessary code
  * and implementation for the class

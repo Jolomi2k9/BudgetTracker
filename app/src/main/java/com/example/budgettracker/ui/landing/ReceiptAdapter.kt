@@ -93,7 +93,16 @@ class ReceiptAdapter(private val listener: onItemClickListener) : ListAdapter<Sh
                     receiptDate.text = it.receipt.createdDateFormatted
                 }
                 //products total
-                val test = mutableListOf<Double>()
+                var test = String()
+                shopsWithReceipts.receipt.forEach { it ->
+                    //add all the product prices in the price list
+                    it.product.forEach {
+                        test = it.price
+                    }
+                }
+                //
+                totalPrice.text = test
+                /*val test = mutableListOf<Double>()
                 shopsWithReceipts.receipt.forEach { it ->
                     //add all the product prices in the price list
                     it.product.forEach {
@@ -102,7 +111,7 @@ class ReceiptAdapter(private val listener: onItemClickListener) : ListAdapter<Sh
                     //display the sum of all the items in the price list
                     totalPrice.text = test.sum().toString()
                     //Log.i("Receipt","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2")
-                }
+                }*/
             }
         }
     }
