@@ -86,20 +86,24 @@ class LandingFragmentViewModel @ViewModelInject constructor(
 
     //write all receipts in the database to a csv file
     fun exportReceiptDBToCSVFile(csvFile : File){
-        //
-        var product = listOf<Product>()
+        var shopsWithReceipts: List<ShopsWithReceipts>
+        //done on background trend because we call a suspend function
         applicationScope.launch {
-             product = receiptDao.getProduct()
-        }
-        csvWriter().open(csvFile, append = false) {
-            // Header
-            writeRow(listOf("[id]", "Shops"))
-            //
-            /*product.forEachIndexed { index, shop ->
-                writeRow(listOf(index,shop.shopName))
-            }*/
-            product.forEachIndexed { index, product ->
-                writeRow(listOf(index,product.product))
+            shopsWithReceipts = receiptDao.getShopsWithReceipts()
+            csvWriter().open(csvFile, append = false) {
+                // Header
+                writeRow(listOf("[id]", "[Shops]","[Products]","[Price]"))
+                //Body distinguished by receipt
+                shopsWithReceipts.forEachIndexed { index, shopsWithReceipts ->
+                    val shopName = shopsWithReceipts.shop.shopName
+                    shopsWithReceipts.receipt.forEach { receipt ->
+                        val date = receipt.receipt.createdDateFormatted
+                        writeRow(listOf(index,shopName,date))
+                        receipt.product.forEach { product ->
+                            writeRow(listOf("","",product.product,product.price))
+                        }
+                    }
+                }
             }
         }
     }

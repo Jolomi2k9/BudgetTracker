@@ -49,6 +49,11 @@ interface ReceiptDao {
     @Query("SELECT * FROM shop_table WHERE shopName LIKE '%' || :searchQuery || '%' ")
     fun  getShopsWithReceiptsSortedByDateCreated(searchQuery: String) : Flow<List<ShopsWithReceipts>>
 
+    //
+    @Transaction
+    @Query("SELECT * FROM shop_table")
+    fun  getShopsWithReceipts() : List<ShopsWithReceipts>
+
     //get all shops in the shop table
     @Query("SELECT * FROM shop_table")
     fun  getShopsId() : List<Shop>

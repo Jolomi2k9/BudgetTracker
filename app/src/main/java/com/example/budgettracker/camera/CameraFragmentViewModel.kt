@@ -27,9 +27,9 @@ class CameraFragmentViewModel @ViewModelInject constructor(
     private val cameraEventChannel = Channel<CameraEvent>()
     val cameraEvent = cameraEventChannel.receiveAsFlow()
     //
-    lateinit var mTextEntityExtractor: EntityExtractor
+    //lateinit var mTextEntityExtractor: EntityExtractor
     //
-    var mIsModelAvailable = false
+    //var mIsModelAvailable = false
     //list to hold all items detected in a receipt
     private var productList = mutableListOf<String>()
     //list to hold only prices detected
