@@ -50,7 +50,7 @@ import com.example.budgettracker.databinding.ItemReceiptBinding
 
 }*/
 //Adapter to handle a list of receipts
-class ReceiptAdapter(private val listener: onItemClickListener) : ListAdapter<ShopsWithReceipts, ReceiptAdapter.ReceiptViewHolder>(DiffCallback()){
+class ReceiptAdapter(private val listener: onItemClickListener,val storeCode: Int) : ListAdapter<ShopsWithReceipts, ReceiptAdapter.ReceiptViewHolder>(DiffCallback()){
 
 
     //Where recyclerview can get new items in the list
@@ -86,6 +86,9 @@ class ReceiptAdapter(private val listener: onItemClickListener) : ListAdapter<Sh
         //
         fun bind(shopsWithReceipts: ShopsWithReceipts){
             binding.apply {
+                if (storeCode == 1){
+                    storeLogo.setBackgroundResource(R.mipmap.ic_tesco_foreground)
+                }
                 //display the current store name
                 storeName.text = shopsWithReceipts.shop.shopName
                 //display the date the receipt was created

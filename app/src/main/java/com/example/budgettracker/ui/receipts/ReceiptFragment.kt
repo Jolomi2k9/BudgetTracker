@@ -49,12 +49,20 @@ class ReceiptFragment : Fragment(R.layout.fragment_receipt){
         //onStart is called
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.homeEvent.collect { event ->
+                Log.i("ReceiptFragment","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!7")
                 when (event) {
                     //Navigate to the home screen
                     is ReceiptFragmentViewModel.HomeEvent.NavigateToHomeScreen -> {
+                        Log.i("ReceiptFragment","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!8")
                             val action =
                                 ReceiptFragmentDirections.actionReceiptFragmentToLandingFragment(
                                 )
+                        findNavController().navigate(action)
+                    }
+                    is ReceiptFragmentViewModel.HomeEvent.NavigateHomeWithArgument ->{
+                        Log.i("ReceiptFragment","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!9")
+                        val action =
+                            ReceiptFragmentDirections.actionReceiptFragmentToLandingFragment(event.shopCode)
                         findNavController().navigate(action)
                     }
                 }.exhaustive

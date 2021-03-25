@@ -1,5 +1,6 @@
 package com.example.budgettracker.ui.receipts
 
+import android.util.Log
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.SavedStateHandle
@@ -9,9 +10,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.budgettracker.camera.CameraFragmentViewModel
 import com.example.budgettracker.data.Receipt
 import com.example.budgettracker.data.ReceiptDao
+import com.example.budgettracker.data.Shop
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.util.*
 
 class ReceiptFragmentViewModel @ViewModelInject constructor(
     private val receiptDao: ReceiptDao,
@@ -25,6 +28,7 @@ class ReceiptFragmentViewModel @ViewModelInject constructor(
 
     //retrieve argument
     val receipt = state.get<Receipt>("receipt")
+    val shop = state.get<Shop>("shop")
 
 
     //retrieve the receipt Id from the saved instance state
@@ -37,11 +41,23 @@ class ReceiptFragmentViewModel @ViewModelInject constructor(
     //Navigate to the landing fragment
     fun onGoHomeClick() = viewModelScope.launch{
         //send this event to channel
-        homeEventChannel.send(HomeEvent.NavigateToHomeScreen)
+
+        val shopName = shop?.shopName
+        if (shopName != null) {
+            if (shopName.toUpperCase(Locale.ROOT) == "TESCO"){
+                homeEventChannel.send(HomeEvent.NavigateHomeWithArgument(1))
+            }else{
+                homeEventChannel.send(HomeEvent.NavigateToHomeScreen)
+            }
+        }else{
+            homeEventChannel.send(HomeEvent.NavigateToHomeScreen)
+        }
     }
 
     sealed class HomeEvent{
-        //create a single instance of to navigate to camera fragment
+        //create a single instance of to navigate to the home screen
         object NavigateToHomeScreen : HomeEvent()
+        //Navigate home with shop code argument
+        data class NavigateHomeWithArgument(val shopCode : Int) : HomeEvent()
     }
 }

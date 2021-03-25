@@ -67,10 +67,11 @@ class LandingFragment : Fragment(R.layout.fragment_landing), ReceiptAdapter.onIt
     }*/
     override fun onViewCreated(view: View, savedInstanceState: Bundle?){
         super.onViewCreated(view, savedInstanceState)
+        val storeCode = viewModel.storeCode!!
         //binding to the view
         val binding = FragmentLandingBinding.bind(view)
         //get an instance of the receipt adapter
-        val receiptAdapter = ReceiptAdapter(this)
+        val receiptAdapter = ReceiptAdapter(this,storeCode)
         //binding our receipts
         binding.apply {
             recyclerViewLanding.apply {
@@ -132,11 +133,12 @@ class LandingFragment : Fragment(R.layout.fragment_landing), ReceiptAdapter.onIt
                         findNavController().navigate(action)
                     }
                     is LandingFragmentViewModel.ReceiptEvent.NavigateToReceiptDetailScreen -> {
-                        //navigate to detailed receipt screen and pass the receipt, also with compile time safety
+                        //val shps = event.shopsWithReceipts.shop
+                        //navigate to detailed receipt screen and pass the receipt and shop, also with compile time safety
                         event.shopsWithReceipts.receipt.forEach {
                             val action =
                                 LandingFragmentDirections.actionLandingFragmentToReceiptFragment(
-                                    it.receipt
+                                    it.receipt,null
                                 )
                             findNavController().navigate(action)
                         }

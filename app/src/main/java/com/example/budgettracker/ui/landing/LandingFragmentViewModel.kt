@@ -5,7 +5,9 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat.startActivity
+import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -29,7 +31,8 @@ import java.io.File
 
 class LandingFragmentViewModel @ViewModelInject constructor(
     private val receiptDao: ReceiptDao,
-    @ApplicationScope private val applicationScope: CoroutineScope
+    @ApplicationScope private val applicationScope: CoroutineScope,
+    @Assisted private val state: SavedStateHandle
 ) : ViewModel() {
 
 
@@ -40,6 +43,9 @@ class LandingFragmentViewModel @ViewModelInject constructor(
     //Create a state flow for the sort order
     //By default the receipt will be sorted by date
     val sortOrder = MutableStateFlow(SortOrder.BY_DATE)
+
+    //retrieve argument
+    val storeCode = state.get<Int>("storeCode")
 
     //create a csv file name
     private val CSVFileName : String = "ReceiptProducts.csv"
@@ -107,7 +113,6 @@ class LandingFragmentViewModel @ViewModelInject constructor(
             }
         }
     }
-
     //Representation of the different events to send to the fragments
     sealed class ReceiptEvent{
         //create a single instance of to navigate to camera fragment
@@ -118,9 +123,7 @@ class LandingFragmentViewModel @ViewModelInject constructor(
         //for displaying delete message
         data class ShowDeleteReceiptMessage(val shopsWithReceipts: ShopsWithReceipts) : ReceiptEvent()
     }
-
 }
-
 //class used in sorting the database
 enum class SortOrder{ BY_STORE, BY_DATE}
 

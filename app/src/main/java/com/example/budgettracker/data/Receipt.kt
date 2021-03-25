@@ -11,11 +11,12 @@ import java.text.DateFormat
 
 //Table for the list of shops
 @Entity(tableName = "shop_table")
+@Parcelize
 data class Shop(
     @ColumnInfo(name = "shopName")val shopName: String,
     //Primary key to uniquely identify all of the items in this table
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name ="shopId")val shopId: Int = 0
-)
+) : Parcelable
 
 
 //Table for the receipts

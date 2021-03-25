@@ -100,7 +100,7 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
                     is CameraFragmentViewModel.CameraEvent.NavigateToReceiptDetailScreen -> {
                         val action =
                             ImageViewFragmentDirections.actionImageViewFragmentToReceiptFragment(
-                                event.receipt
+                                event.receipt,event.shop
                             )
                         findNavController().navigate(action)
                     }

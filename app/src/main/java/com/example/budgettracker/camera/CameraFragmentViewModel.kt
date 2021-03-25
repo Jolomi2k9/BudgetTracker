@@ -40,6 +40,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
     private var products = mutableListOf<Product>()
     //
     private var rets = listOf<Receipt>()
+    private var shps = listOf<Shop>()
     //Pass the captured image to MLKit OCR
     fun textRecognition(image: Bitmap) {
         val image = InputImage.fromBitmap(image, 0)
@@ -63,7 +64,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
                 //store all lines in productList
                 productList.add(lineText)
 
-                Log.i("ImageViewFragments","${lineText}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
+                Log.i("ReceiptImageView","${lineText}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
                 /*//Take every line that starts with an "EUR" or "FUR"and assume this to be the price
                 if(lineText[0] == 'E' || lineText[0] == 'F' && lineText[1] == 'U' && lineText[2] == 'R'){
                     //remove the "EUR" from the price
@@ -242,6 +243,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
             bKey.forEach {
                 sKey = it.shopId
             }
+            shps = bKey
             //create receipt list
             val receipts = listOf(Receipt(sKey))
             //insert into receipt table
@@ -278,14 +280,18 @@ class CameraFragmentViewModel @ViewModelInject constructor(
 
     //Navigate to the detailed receipt screen and pass the current receipt
     fun onGoToDetailViewClick() = viewModelScope.launch{
-
-        rets.forEach { receipt ->
-            cameraEventChannel.send(CameraEvent.NavigateToReceiptDetailScreen(receipt))
+        Log.i("ReceiptImageView","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!3")
+        shps.forEach { shop ->
+            Log.i("ReceiptImageView","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!3.5")
+            rets.forEach { receipt ->
+                Log.i("ReceiptImageView","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4")
+                cameraEventChannel.send(CameraEvent.NavigateToReceiptDetailScreen(receipt,shop))
+            }
         }
     }
 
     //
     sealed class CameraEvent{
-        data class NavigateToReceiptDetailScreen(val receipt: Receipt) : CameraEvent()
+        data class NavigateToReceiptDetailScreen(val receipt: Receipt,val shop: Shop) : CameraEvent()
     }
 }
