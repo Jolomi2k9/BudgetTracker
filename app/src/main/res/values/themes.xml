@@ -3,6 +3,7 @@
     <style name="Theme.BudgetTracker" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/purple_500</item>
+        <!--<item name="colorPrimary">@color/white</item>-->
         <item name="colorPrimaryVariant">@color/purple_700</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
@@ -12,5 +13,22 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <!--Overflow menu icon color-->
+        <item name="actionOverflowButtonStyle"> @style/overFlowColor</item>
+        <!--Action bar text color-->
+        <!--<item name="actionBarStyle">@style/ActionBarStyle</item>-->
     </style>
+    <!--Overflow menu icon color-->
+    <style name="overFlowColor" parent="@style/Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:tint"> @color/black </item>
+    </style>
+
+    <!--Action bar text color-->
+    <!--<style name="ActionBarStyle" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="android:titleTextStyle">@style/ActionBarTitle</item>
+    </style>
+    <style name="ActionBarTitle" parent="Widget.AppCompat.ActionBar">
+        <item name="android:textColor">@color/black</item>
+    </style>-->
+
 </resources>

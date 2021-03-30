@@ -34,6 +34,8 @@ class CameraFragmentViewModel @ViewModelInject constructor(
     private var productList = mutableListOf<String>()
     //list to hold only prices detected
     private var priceList = mutableListOf<String>()
+    //Filtered priceList
+    private var filteredPriceList = mutableListOf<String>()
     //list to hold only names of product
     private var productNameList = mutableListOf<String>()
     //list to hold items of class "Product"
@@ -63,7 +65,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
                 //store all lines in productList
                 productList.add(lineText)
 
-                Log.i("ImageViewFragments","${lineText}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
+                Log.i("ReceiptImageView","${lineText}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
                 /*//Take every line that starts with an "EUR" or "FUR"and assume this to be the price
                 if(lineText[0] == 'E' || lineText[0] == 'F' && lineText[1] == 'U' && lineText[2] == 'R'){
                     //remove the "EUR" from the price
@@ -89,7 +91,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         }
         //
         for (i in productList) {
-            if (i.toUpperCase(Locale.ROOT) == "TESCO") {
+            if (i.toUpperCase(Locale.ROOT) == "TESCO" || i.toUpperCase(Locale.ROOT) == "TESC") {
                 //Log.i("ImageViewFragments","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2")
                 tescoReceipt()
                 break
@@ -186,11 +188,25 @@ class CameraFragmentViewModel @ViewModelInject constructor(
     fun tescoReceipt(){
         var firstEurIndex = 0
         var firstIndexCount = 0
+        var secondIndexCount: Int
+        var plusTrigger = false
         for (i in productList) {
             //Take every line that starts with an "EUR" or "FUR"and assume this to be the price
             if (i[0] == 'E' || i[0] == 'F' && i[1] == 'U' && i[2] == 'R') {
+                //Check if the first and second EUR occur concurrently
+                if(firstIndexCount == 1){
+                    //Log.i("Receipt1ImageView","${firstEurIndex}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2")
+                    secondIndexCount = productList.indexOf(i)
+                    if((firstEurIndex+1) != secondIndexCount){
+                        firstEurIndex = secondIndexCount
+                        plusTrigger = true
+                    }
+                    firstIndexCount ++
+                }
+                //Check for the first price index
                 if (firstIndexCount == 0 ){
                     firstEurIndex = productList.indexOf(i)
+                    //Log.i("Receipt1ImageView","${firstEurIndex}!!!!!!!!!!!!!!!!!!!!!${productList[firstEurIndex]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
                     firstIndexCount ++
                 }
                 //remove the "EUR" from the price
@@ -216,25 +232,99 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         val numOfEur = priceList.size
         val numOfProductEur = numOfEur - 2
         val lastEurIndex = numOfEur  - 3
-        val firstProductIndex = firstEurIndex - numOfProductEur
+        var firstProductIndex = 2 //firstEurIndex - numOfProductEur
         val lastProductIndex = firstEurIndex - 1
         //val totalIndex = lastEurIndex + 1
         val totalPriceIndex = numOfEur - 2
+        //Log.i("Receipt2ImageView","${firstProductIndex}!!!!!!!!!!!!!${productList[firstProductIndex]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2")
+        //
+        if(plusTrigger){
+            firstProductIndex --
+        }
+        //Log.i("Receipt2ImageView","${firstProductIndex}!!!!!!!!!!!!!!!${productList[firstProductIndex]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.5")
+        //Log.i("Receipt2ImageView","${lastProductIndex}!!!!!!!!!!!!!!!!!${productList[lastProductIndex]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.6")
+
+        /*priceList.forEach { price ->
 
 
-        /*for (i in firstProductIndex .. lastProductIndex){
+        }*/
+        /*for (i in productList){
+            when{
+                i == "REDUCED PRICE" -> {firstProductIndex -2 }
+                i.contains("kg") -> {firstProductIndex -- }
+                i.length < 3 -> {firstProductIndex -- }
+            }
+            Log.i("Receipt2ImageView","$firstProductIndex!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.0")
+        }*/
+        //
+        var tests = 0
+        val testProductList = mutableListOf<String>()
+        for (i in firstProductIndex .. lastProductIndex){
+            testProductList.add(productList[i])
+            Log.i("Receipt2ImageView","${testProductList[tests]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.3")
+            tests ++
+        }
+        Log.i("Receipt2ImageView","${priceList.size}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.4")
+        Log.i("Receipt2ImageView","${testProductList.size}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.5")
+        var priceIndex = 0
+        for (i in testProductList){
+            Log.i("Receipt2ImageView","$priceIndex!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.6")
+            //
+            when {
+                //When string detected, add spaces to the filtered price list
+                i == "REDUCED PRICE" -> {
+                    //filteredPriceList[testProductList.indexOf(i) - 1] = ""
+                    //filteredPriceList[testProductList.indexOf(i)] = ""//testProductList[testProductList.indexOf(i)]
+                    filteredPriceList.add(index = testProductList.indexOf(i) - 1,element = "")
+                    filteredPriceList.add(index = testProductList.indexOf(i) ,testProductList[testProductList.indexOf(i)])
+                    priceIndex --
+                }
+                //
+                i.contains("@") -> {
+                    //filteredPriceList[testProductList.indexOf(i) - 1] = ""
+                    filteredPriceList.add(index = testProductList.indexOf(i) - 1,element = "")
+                    priceIndex --
+                    //filteredPriceList[testProductList.indexOf(i)] = priceList[priceIndex]
+                    filteredPriceList.add(index = testProductList.indexOf(i),element = priceList[priceIndex])
+                    priceIndex ++
+                }
+                //
+                i.length < 3 -> {
+                    //filteredPriceList[testProductList.indexOf(i) - 1] = ""
+                    filteredPriceList.add(index = testProductList.indexOf(i) - 1,element = "")
+                    //filteredPriceList[testProductList.indexOf(i)] = priceList[priceIndex]
+                    filteredPriceList.add(index = testProductList.indexOf(i),element = priceList[priceIndex])
+                    priceIndex ++
+                }
+                else -> {
+                    //filteredPriceList[testProductList.indexOf(i)] = priceList[priceIndex]
+                    filteredPriceList.add(index = testProductList.indexOf(i),element = priceList[priceIndex])
+                    priceIndex ++
+                }
+            }
+        }
+        for (i in filteredPriceList.indices) {
+            Log.i("Receipt2ImageView","${testProductList.size}!!!!!!!!!!!!!!!!!${filteredPriceList.size}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.8")
+            Log.i("Receipt2ImageView","!!!!!!!!!!!!!!!!!${filteredPriceList[i]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.9")
+        }
+        //priceList[testProductList.indexOf(i)]
+
+       /* for (i in firstProductIndex .. lastProductIndex){
                 products.add(Product(productList[i],priceList[i - firstProductIndex],2))
         }
-        products.add(Product("Total",priceList[totalPriceIndex],2))*/
+        products.add(Product("Total",priceList[totalPriceIndex],2))
 
-        /*for (i in products){
+        for (i in products){
             Log.i("ImageViewFragments","${i.product}!!!!!!!!${i.price}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!5")
         }*/
-        applicationScope.launch {
+
+
+       /* applicationScope.launch {
             var sKey = 0
             var rKey = 0
             //create shop list
             val shops = listOf(Shop("Tesco"))
+            /** Check if the shop is already in the database before adding, if there, make that the bKey*/
             //Insert into shops table
             shops.forEach { receiptDao.insertShop(it)}
             //get auto generated primary key from Shops table
@@ -258,13 +348,15 @@ class CameraFragmentViewModel @ViewModelInject constructor(
                 products.add(Product(productList[i],priceList[i - firstProductIndex],rKey))
             }
             products.add(Product("Total",priceList[totalPriceIndex],rKey))
-            /*for (i in priceList.indices){
+            *//*for (i in priceList.indices){
                 //products = listOf(Product(productNameList[i],priceList[i],rKey))
                 products.add(Product(productNameList[i],priceList[i],rKey))
-            }*/
+            }*//*
             //Insert into products table
             products.forEach { receiptDao.insertProduct(it)}
-        }
+        }*/
+
+
         /*Log.i("ImageViewFragments","$firstIndexCount!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4.0")
         Log.i("ImageViewFragments","${productList[firstEurIndex]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4.1")
         Log.i("ImageViewFragments","$numOfEur!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4.2")
@@ -286,6 +378,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
 
     //
     sealed class CameraEvent{
+        //
         data class NavigateToReceiptDetailScreen(val receipt: Receipt) : CameraEvent()
     }
 }
