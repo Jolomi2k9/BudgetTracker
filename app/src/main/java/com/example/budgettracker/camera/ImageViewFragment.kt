@@ -97,12 +97,18 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.cameraEvent.collect { event ->
                 when (event) {
+                    //Navigate to the receipt fragment
                     is CameraFragmentViewModel.CameraEvent.NavigateToReceiptDetailScreen -> {
                         val action =
                             ImageViewFragmentDirections.actionImageViewFragmentToReceiptFragment(
                                 event.receipt
                             )
                         findNavController().navigate(action)
+                    }
+                    is CameraFragmentViewModel.CameraEvent.imageProcessingCompleted -> {
+                        //Change the displayed button when image processing is complete
+                        binding.loadingButton.visibility = View.GONE
+                        binding.goToReceipt.visibility = View.VISIBLE
                     }
                 }.exhaustive
             }

@@ -42,6 +42,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
     private var products = mutableListOf<Product>()
     //
     private var rets = listOf<Receipt>()
+
     //Pass the captured image to MLKit OCR
     fun textRecognition(image: Bitmap) {
         val image = InputImage.fromBitmap(image, 0)
@@ -49,6 +50,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
 
         val result = recognizer.process(image)
             .addOnSuccessListener { visionText ->
+                onImageProcessingCompleted()
                 processTextBlock(visionText)
             }
             .addOnFailureListener { e ->
@@ -89,20 +91,26 @@ class CameraFragmentViewModel @ViewModelInject constructor(
                 }*/
             }
         }
-        //
+        //Identify which receipt has been scanned and call the associated function or display
+        //an error message
         for (i in productList) {
-            if (i.toUpperCase(Locale.ROOT) == "TESCO" || i.toUpperCase(Locale.ROOT) == "TESC") {
-                //Log.i("ImageViewFragments","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2")
-                tescoReceipt()
-                break
+            when{
+                i.toUpperCase(Locale.ROOT) == "TESCO" || i.toUpperCase(Locale.ROOT) == "TESC" -> {
+                    tescoReceipt()
+                    break
+                }
+                i.toUpperCase(Locale.ROOT).contains("ALDI") -> {
+                    aldiReceipt()
+                    break
+                }
+                i.toUpperCase(Locale.ROOT).contains("LODL") ||
+                        i.toUpperCase(Locale.ROOT).contains("LDL") -> {
+                    lidlReceipt()
+                    break
+                }
+
             }
-            /*else if (i.toUpperCase(Locale.ROOT) != "TESCO" && ticker == 0) {
-                //channel snackBar in imageViewFragment "No receipt detected!"
-                Log.i(
-                    "ImageViewFragments",
-                    "$i No receipt detected !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.5"
-                )
-            }*/
+
         }
         //Extract only the names of the product from the product list
         /*for (i in productList.indices){
@@ -192,7 +200,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         var plusTrigger = false
         for (i in productList) {
             //Take every line that starts with an "EUR" or "FUR"and assume this to be the price
-            if (i[0] == 'E' || i[0] == 'F' && i[1] == 'U' && i[2] == 'R') {
+            if (i.contains("EUR") || i.contains("FUR")) {
                 //Check if the first and second EUR occur concurrently
                 if(firstIndexCount == 1){
                     //Log.i("Receipt1ImageView","${firstEurIndex}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2")
@@ -229,6 +237,40 @@ class CameraFragmentViewModel @ViewModelInject constructor(
                 priceList.add(finalPrice)
             }
         }
+        //
+        for (i in productList) {
+            //Conditions for items that are not price items on the receipt
+            if (!i.contains("EUR") && !i.contains("FUR")) {
+                when {
+                    //When "total" or "sub total" is encountered, end the loop
+                    i.toUpperCase(Locale.ROOT) == "TOTAL" || i.toUpperCase(Locale.ROOT) == "SUB TOTAL" ->{
+                        break
+                    }
+                    //ignore prices without an EUR prefix
+                    i.contains('.') && i.length < 7 ->{
+                        //do nothing
+                    }
+                    //ignore the first two items int he list,
+                    // which is usually the "Tesco Ireland" logo
+                    productList.indexOf(i) == 0 || productList.indexOf(i) == 1 ->{
+                        //do nothing
+                    }else -> {
+                    //add everything else to the product list, these are the purchased
+                    // product names on the receipt
+                        productNameList.add(i)
+                    }
+                }
+            }
+        }
+
+        /*for (i in productNameList) {
+            Log.i("Receipt2ImageView","Produce${productNameList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.5")
+        }
+
+        for (i in priceList) {
+            Log.i("Receipt2ImageView","Price${priceList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.6")
+        }*/
+
         val numOfEur = priceList.size
         val numOfProductEur = numOfEur - 2
         val lastEurIndex = numOfEur  - 3
@@ -236,13 +278,10 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         val lastProductIndex = firstEurIndex - 1
         //val totalIndex = lastEurIndex + 1
         val totalPriceIndex = numOfEur - 2
-        //Log.i("Receipt2ImageView","${firstProductIndex}!!!!!!!!!!!!!${productList[firstProductIndex]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2")
         //
         if(plusTrigger){
             firstProductIndex --
         }
-        //Log.i("Receipt2ImageView","${firstProductIndex}!!!!!!!!!!!!!!!${productList[firstProductIndex]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.5")
-        //Log.i("Receipt2ImageView","${lastProductIndex}!!!!!!!!!!!!!!!!!${productList[lastProductIndex]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.6")
 
         /*priceList.forEach { price ->
 
@@ -257,7 +296,9 @@ class CameraFragmentViewModel @ViewModelInject constructor(
             Log.i("Receipt2ImageView","$firstProductIndex!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.0")
         }*/
         //
-        var tests = 0
+
+
+        /*var tests = 0
         val testProductList = mutableListOf<String>()
         for (i in firstProductIndex .. lastProductIndex){
             testProductList.add(productList[i])
@@ -265,48 +306,65 @@ class CameraFragmentViewModel @ViewModelInject constructor(
             tests ++
         }
         Log.i("Receipt2ImageView","${priceList.size}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.4")
-        Log.i("Receipt2ImageView","${testProductList.size}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.5")
+        Log.i("Receipt2ImageView","${testProductList.size}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.5")*/
+
+
+
+
         var priceIndex = 0
-        for (i in testProductList){
-            Log.i("Receipt2ImageView","$priceIndex!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.6")
+        for (i in productNameList){
             //
             when {
                 //When string detected, add spaces to the filtered price list
-                i == "REDUCED PRICE" -> {
+                i.contains("REDUCE") -> {
                     //filteredPriceList[testProductList.indexOf(i) - 1] = ""
                     //filteredPriceList[testProductList.indexOf(i)] = ""//testProductList[testProductList.indexOf(i)]
-                    filteredPriceList.add(index = testProductList.indexOf(i) - 1,element = "")
-                    filteredPriceList.add(index = testProductList.indexOf(i) ,testProductList[testProductList.indexOf(i)])
+                    filteredPriceList.add(index = productNameList.indexOf(i) - 1,element = "")
+                    filteredPriceList.add(index = productNameList.indexOf(i) ,element = "") //productNameList[productNameList.indexOf(i)])
                     priceIndex --
+                    Log.i("Receipt2ImageView","$priceIndex!!!!!!!!!!!!!!!!!!!REDUCED PRICE!!!!!!!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!${priceList[priceIndex]}!!!!!2.6")
                 }
                 //
-                i.contains("@") -> {
+                i.contains("kg") -> {
                     //filteredPriceList[testProductList.indexOf(i) - 1] = ""
-                    filteredPriceList.add(index = testProductList.indexOf(i) - 1,element = "")
+                    filteredPriceList.add(index = productNameList.indexOf(i) - 1,element = "")
                     priceIndex --
                     //filteredPriceList[testProductList.indexOf(i)] = priceList[priceIndex]
-                    filteredPriceList.add(index = testProductList.indexOf(i),element = priceList[priceIndex])
+                    filteredPriceList.add(index = productNameList.indexOf(i),element = priceList[priceIndex])
                     priceIndex ++
+                    Log.i("Receipt2ImageView","$priceIndex!!!!!!!!!!!!!!!!!!!@!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.6")
                 }
                 //
                 i.length < 3 -> {
                     //filteredPriceList[testProductList.indexOf(i) - 1] = ""
-                    filteredPriceList.add(index = testProductList.indexOf(i) - 1,element = "")
+                    filteredPriceList.add(index = productNameList.indexOf(i) - 1,element = "")
                     //filteredPriceList[testProductList.indexOf(i)] = priceList[priceIndex]
-                    filteredPriceList.add(index = testProductList.indexOf(i),element = priceList[priceIndex])
+                    filteredPriceList.add(index = productNameList.indexOf(i),element = priceList[priceIndex])
                     priceIndex ++
+                    Log.i("Receipt2ImageView","$priceIndex!!!!!!!!!!!!!!!!!!!length!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.6")
                 }
                 else -> {
                     //filteredPriceList[testProductList.indexOf(i)] = priceList[priceIndex]
-                    filteredPriceList.add(index = testProductList.indexOf(i),element = priceList[priceIndex])
+                    filteredPriceList.add(index = productNameList.indexOf(i),element = priceList[priceIndex])
+                    Log.i("Receipt2ImageView","$priceIndex!!!!!!!!!!!!!!!!!!!else!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!${priceList[priceIndex]}!!!!!!!!!!!2.6")
                     priceIndex ++
+
                 }
             }
         }
-        for (i in filteredPriceList.indices) {
-            Log.i("Receipt2ImageView","${testProductList.size}!!!!!!!!!!!!!!!!!${filteredPriceList.size}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.8")
-            Log.i("Receipt2ImageView","!!!!!!!!!!!!!!!!!${filteredPriceList[i]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.9")
+
+
+        //tesiting
+        for (i in productNameList) {
+            Log.i("Receipt2ImageView","Produce${productNameList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.5")
         }
+
+        for (i in filteredPriceList) {
+            Log.i("Receipt2ImageView","Price${filteredPriceList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.6")
+        }
+
+
+
         //priceList[testProductList.indexOf(i)]
 
        /* for (i in firstProductIndex .. lastProductIndex){
@@ -317,6 +375,8 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         for (i in products){
             Log.i("ImageViewFragments","${i.product}!!!!!!!!${i.price}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!5")
         }*/
+
+        //"Clean" the created product names and price list , in order to avoid any errors
 
 
        /* applicationScope.launch {
@@ -368,17 +428,125 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         Log.i("ImageViewFragments","${priceList[totalPriceIndex]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4.8")*/
     }
 
+
+
+    fun aldiReceipt(){
+        //
+        for(i in productList){
+            when{
+                //Check for the end of the receipt
+                  i.toUpperCase(Locale.ROOT).contains("GOODS")  -> {
+                      //remove the first 5 characters from the string
+                      var sans5 = String()
+                      for (c in i.indices) {
+                          if (c > 5) {
+                              sans5 += i[c].toString()
+                          }
+                      }
+                      //if any char is an 'O' or 'o' or 'S', substitute with a "0" or "5"
+                      var totalPrice = String()
+                      for (i in sans5.indices) {
+                          totalPrice += when{
+                              sans5[i] == 'O' || sans5[i] == 'o'->{
+                                  "0"
+                              }
+                              sans5[i] == 'S'->{
+                                  "5"
+                              }else->{
+                                  sans5[i].toString()
+                              }
+                          }
+                      }
+                      priceList.add(totalPrice)
+                      break
+                  }
+                //if the first 4 char are digits and the string is longer than 7, then assume this to
+                    //be a product item
+                i.length > 3 && i[0].isDigit() && i[1].isDigit() && i[2].isDigit() && i[3].isDigit()
+                        && i.length > 7 -> {
+                    productNameList.add(i)
+                }
+                //If starts with a digit and ends with a character and also contains "."
+                // or if the length is less and 7 and contains "." then assume
+                // this to be a price item
+                i[0].isDigit()  && i.contains('.') && i.length < 7
+                        || i.length < 7 && i.contains('.') -> {
+                    priceList.add(i)
+                }
+            }
+        }
+        //testing
+        for (i in productNameList) {
+            Log.i("Receipt2ImageView","Produce${productNameList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.5")
+        }
+
+        for (i in priceList) {
+            Log.i("Receipt2ImageView","Price${priceList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.6")
+        }
+    }
+
+    fun lidlReceipt(){
+        var totalPrice = String()
+        for (i in productList){
+            //
+            when{
+                //If "Total" or "Debit" is encounter store appropriate item as final price
+                    // and end loop
+                i.toUpperCase(Locale.ROOT).contains("TOTAL") || i.toUpperCase(Locale.ROOT)
+                    .contains("DEBIT")  -> {
+                    if (i.toUpperCase(Locale.ROOT).contains("TOTAL")){
+                    val ind = productList.indexOf(i) + 1
+                    priceList.add( productList[ind])
+                    break
+                    }else{
+                        val ind = productList.indexOf(i) - 1
+                        priceList.add( productList[ind])
+                        break
+                    }
+                }
+                //if any of the below words and characters are encountered, ignore them
+                i.contains("Scratch") || i.contains("Coupon") ||
+                        i.contains("Multibuy") || i.contains("-") ||
+                        i.contains("Item") ||i.contains("EUR") ||
+                        i.contains("x") && i.contains(".") -> {}
+                //if item has "." and is less than 7 in length, assume it to be an item price
+                i.contains(".") && i.length < 7 -> {
+                    priceList.add(i)
+                }
+                //otherwise, if this is not the first two item, then this is a product item
+                productList.indexOf(i) != 0 && productList.indexOf(i) != 1 ->{
+                    productNameList.add(i)
+                }
+            }
+        }
+        //testing
+        for (i in productNameList) {
+            Log.i("Receipt2ImageView","Produce${productNameList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.5")
+        }
+
+        for (i in priceList) {
+            Log.i("Receipt2ImageView","Price${priceList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.6")
+        }
+    }
+
     //Navigate to the detailed receipt screen and pass the current receipt
     fun onGoToDetailViewClick() = viewModelScope.launch{
-
+        Log.i("Receipt2ImageView","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!3.0")
         rets.forEach { receipt ->
             cameraEventChannel.send(CameraEvent.NavigateToReceiptDetailScreen(receipt))
         }
+    }
+    //Trigger change in icon when image processing is completed
+    fun onImageProcessingCompleted() = viewModelScope.launch {
+        cameraEventChannel.send(CameraEvent.imageProcessingCompleted)
     }
 
     //
     sealed class CameraEvent{
         //
         data class NavigateToReceiptDetailScreen(val receipt: Receipt) : CameraEvent()
+        //
+        //data class imageProcessingCompleted(val trigger: Boolean) : CameraEvent()
+        object  imageProcessingCompleted : CameraEvent()
     }
 }
