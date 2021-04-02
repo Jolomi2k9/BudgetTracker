@@ -167,9 +167,9 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         //val totalIndex = lastEurIndex + 1
         val totalPriceIndex = numOfEur - 2
         //
-        if(plusTrigger){
+        /*if(plusTrigger){
             firstProductIndex --
-        }
+        }*/
         var priceIndex = 0
         for (i in productNameList){
             //
@@ -212,68 +212,6 @@ class CameraFragmentViewModel @ViewModelInject constructor(
             }
         }
 
-
-        //tesiting
-        for (i in productNameList) {
-            Log.i("Receipt2ImageView","Produce${productNameList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.5")
-        }
-
-        for (i in filteredPriceList) {
-            Log.i("Receipt2ImageView","Price${filteredPriceList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.6")
-        }
-
-
-
-        //priceList[testProductList.indexOf(i)]
-
-       /* for (i in firstProductIndex .. lastProductIndex){
-                products.add(Product(productList[i],priceList[i - firstProductIndex],2))
-        }
-        products.add(Product("Total",priceList[totalPriceIndex],2))
-
-        for (i in products){
-            Log.i("ImageViewFragments","${i.product}!!!!!!!!${i.price}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!5")
-        }*/
-
-        //"Clean" the created product names and price list , in order to avoid any errors
-
-
-       /* applicationScope.launch {
-            var sKey = 0
-            var rKey = 0
-            //create shop list
-            val shops = listOf(Shop("Tesco"))
-            /** Check if the shop is already in the database before adding, if there, make that the bKey*/
-            //Insert into shops table
-            shops.forEach { receiptDao.insertShop(it)}
-            //get auto generated primary key from Shops table
-            val bKey = receiptDao.getShopsId()
-            bKey.forEach {
-                sKey = it.shopId
-            }
-            //create receipt list
-            val receipts = listOf(Receipt(sKey))
-            //insert into receipt table
-            receipts.forEach { receiptDao.insertReceipt(it)}
-            //get auto generated primary key from receipt table
-            val cKey = receiptDao.getReceiptWithID(sKey)
-            cKey.forEach {
-                rKey = it.receiptId
-            }
-            //Key to navigate to the detail receipt after using receipt
-            rets = cKey
-            //create product lists of receipt products
-            for (i in firstProductIndex .. lastProductIndex){
-                products.add(Product(productList[i],priceList[i - firstProductIndex],rKey))
-            }
-            products.add(Product("Total",priceList[totalPriceIndex],rKey))
-            *//*for (i in priceList.indices){
-                //products = listOf(Product(productNameList[i],priceList[i],rKey))
-                products.add(Product(productNameList[i],priceList[i],rKey))
-            }*//*
-            //Insert into products table
-            products.forEach { receiptDao.insertProduct(it)}
-        }*/
     }
 
 
