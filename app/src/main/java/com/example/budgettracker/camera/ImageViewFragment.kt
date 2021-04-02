@@ -5,33 +5,22 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.budgettracker.R
-import com.example.budgettracker.data.ReceiptDatabase
 import com.example.budgettracker.databinding.FragmentImageviewBinding
-import com.example.budgettracker.ui.landing.LandingFragmentDirections
 import com.example.budgettracker.util.exhaustive
-import com.google.mlkit.nl.entityextraction.EntityExtraction
-import com.google.mlkit.nl.entityextraction.EntityExtractor
-import com.google.mlkit.nl.entityextraction.EntityExtractorOptions
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.TextRecognition
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_imageview.*
 import kotlinx.coroutines.flow.collect
@@ -105,10 +94,25 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
                             )
                         findNavController().navigate(action)
                     }
-                    is CameraFragmentViewModel.CameraEvent.imageProcessingCompleted -> {
+                    is CameraFragmentViewModel.CameraEvent.ImageProcessingCompleted -> {
                         //Change the displayed button when image processing is complete
                         binding.loadingButton.visibility = View.GONE
                         binding.goToReceipt.visibility = View.VISIBLE
+                    }
+                    is CameraFragmentViewModel.CameraEvent.NoSupportedReceiptDetected -> {
+                        //Change the displayed button if no supported receipt is detected
+                        binding.loadingButton.visibility = View.GONE
+                        binding.noReceiptDetected.visibility = View.VISIBLE
+                    }
+                    is CameraFragmentViewModel.CameraEvent.IncompleteDataReceived -> {
+                        //Change the displayed button if incomplete data is received
+                        binding.loadingButton.visibility = View.GONE
+                        binding.incompleteData.visibility = View.VISIBLE
+                    }
+                    is CameraFragmentViewModel.CameraEvent.StoreNotSupported -> {
+                        //Change the displayed button if a particular store is not supported
+                        binding.loadingButton.visibility = View.GONE
+                        binding.storeNotSupported.visibility = View.VISIBLE
                     }
                 }.exhaustive
             }

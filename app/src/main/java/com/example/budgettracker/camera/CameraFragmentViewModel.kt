@@ -2,13 +2,11 @@ package com.example.budgettracker.camera
 
 import android.graphics.Bitmap
 import android.util.Log
-import android.widget.Toast
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.budgettracker.data.*
 import com.example.budgettracker.di.ApplicationScope
-import com.google.mlkit.nl.entityextraction.*
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
@@ -26,10 +24,6 @@ class CameraFragmentViewModel @ViewModelInject constructor(
     //Use channels to send data between two coroutines
     private val cameraEventChannel = Channel<CameraEvent>()
     val cameraEvent = cameraEventChannel.receiveAsFlow()
-    //
-    //lateinit var mTextEntityExtractor: EntityExtractor
-    //
-    //var mIsModelAvailable = false
     //list to hold all items detected in a receipt
     private var productList = mutableListOf<String>()
     //list to hold only prices detected
@@ -40,7 +34,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
     private var productNameList = mutableListOf<String>()
     //list to hold items of class "Product"
     private var products = mutableListOf<Product>()
-    //
+    //Used to pass receipt id between fragments
     private var rets = listOf<Receipt>()
 
     //Pass the captured image to MLKit OCR
@@ -68,27 +62,6 @@ class CameraFragmentViewModel @ViewModelInject constructor(
                 productList.add(lineText)
 
                 Log.i("ReceiptImageView","${lineText}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
-                /*//Take every line that starts with an "EUR" or "FUR"and assume this to be the price
-                if(lineText[0] == 'E' || lineText[0] == 'F' && lineText[1] == 'U' && lineText[2] == 'R'){
-                    //remove the "EUR" from the price
-                    var sansEUR = String()
-                    for (i in lineText.indices){
-                        if (i > 2){
-                            sansEUR += lineText[i].toString()
-                        }
-                    }
-                    //if any char is an 'O' or 'o', substitute with a "0"
-                    var finalPrice = String()
-                    for (i in sansEUR.indices){
-                        finalPrice += if (sansEUR[i] == 'O' || sansEUR[i] == 'o'){
-                            "0"
-                        }else{
-                            sansEUR[i].toString()
-                        }
-                    }
-                    //add this to the priceList
-                    priceList.add(finalPrice)
-                }*/
             }
         }
         //Identify which receipt has been scanned and call the associated function or display
@@ -96,7 +69,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         for (i in productList) {
             when{
                 i.toUpperCase(Locale.ROOT) == "TESCO" || i.toUpperCase(Locale.ROOT) == "TESC" -> {
-                    tescoReceipt()
+                    onStoreNotSupported()
                     break
                 }
                 i.toUpperCase(Locale.ROOT).contains("ALDI") -> {
@@ -104,93 +77,18 @@ class CameraFragmentViewModel @ViewModelInject constructor(
                     break
                 }
                 i.toUpperCase(Locale.ROOT).contains("LODL") ||
-                        i.toUpperCase(Locale.ROOT).contains("LDL") -> {
+                        i.toUpperCase(Locale.ROOT).contains("LDL") ||
+                        i.toUpperCase(Locale.ROOT).contains("LIDL")-> {
                     lidlReceipt()
                     break
+                }else -> {
+                    //If no receipt is detected
+                    onNoReceiptDetected()
                 }
 
             }
 
         }
-        //Extract only the names of the product from the product list
-        /*for (i in productList.indices){
-            if (i <= priceList.size ){
-                productNameList.add(productList[i])
-            }
-            //Log.i("ImageViewFragment","${productList}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
-        }*/
-
-        /*Log.i("ImageViewFragment","${productList.size}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
-        Log.i("ImageViewFragment Price","${priceList.size}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2")
-        Log.i("ImageViewFragment name","${productNameList.size}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!3")
-        for (i in productList){
-            Log.i("ImageViewFragment","$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4")
-        }
-        for(i in priceList){
-            Log.i("ImageViewFragment Price","$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!5")
-        }
-        for(i in productNameList){
-            Log.i("ImageViewFragment names","$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!6")
-        }*/
-
-        //insert into shops
-        /*val shops = listOf(Shop("Tesco4"))
-        //get shops primary key
-        val hey = shops[0]
-        val sKey = hey.shopId
-        //insert into receipts
-        val receipts = listOf(Receipt(sKey))
-        //get receipt primary key
-        val hey1 = receipts[0]
-        val rKey = hey1.receiptId*/
-
-        //prepare products to be inserted into database
-        /*for (i in priceList.indices){
-             //products = listOf(Product(productNameList[i],priceList[i],rKey))
-             products.add(Product(productNameList[i],priceList[i],rKey))
-        }*/
-
-
-        //Insert extracted data into database
-        /*applicationScope.launch{
-            Log.i("ImageView appScope","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
-            shops.forEach { receiptDao.insertShop(it)}
-            receipts.forEach { receiptDao.insertReceipt(it)}
-            products.forEach { receiptDao.insertProduct(it)}
-            //products.forEach { receiptDao.insertProduct(it)}
-        }*/
-
-        /*applicationScope.launch {
-            var sKey = 0
-            var rKey = 0
-            //create shop list
-            val shops = listOf(Shop("Tesco"))
-            //Insert into shops table
-            shops.forEach { receiptDao.insertShop(it)}
-            //get auto generated primary key from Shops table
-            val bKey = receiptDao.getShopsId()
-            bKey.forEach {
-                sKey = it.shopId
-            }
-            //create receipt list
-            val receipts = listOf(Receipt(sKey))
-            //insert into receipt table
-            receipts.forEach { receiptDao.insertReceipt(it)}
-            //get auto generated primary key from receipt table
-            val cKey = receiptDao.getReceiptWithID(sKey)
-            cKey.forEach {
-                rKey = it.receiptId
-            }
-            //
-            rets = cKey
-            //create product lists of receipt products
-            for (i in priceList.indices){
-                //products = listOf(Product(productNameList[i],priceList[i],rKey))
-                products.add(Product(productNameList[i],priceList[i],rKey))
-            }
-            //Insert into products table
-            products.forEach { receiptDao.insertProduct(it)}
-        }*/
     }
 
     fun tescoReceipt(){
@@ -203,7 +101,6 @@ class CameraFragmentViewModel @ViewModelInject constructor(
             if (i.contains("EUR") || i.contains("FUR")) {
                 //Check if the first and second EUR occur concurrently
                 if(firstIndexCount == 1){
-                    //Log.i("Receipt1ImageView","${firstEurIndex}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2")
                     secondIndexCount = productList.indexOf(i)
                     if((firstEurIndex+1) != secondIndexCount){
                         firstEurIndex = secondIndexCount
@@ -214,7 +111,6 @@ class CameraFragmentViewModel @ViewModelInject constructor(
                 //Check for the first price index
                 if (firstIndexCount == 0 ){
                     firstEurIndex = productList.indexOf(i)
-                    //Log.i("Receipt1ImageView","${firstEurIndex}!!!!!!!!!!!!!!!!!!!!!${productList[firstEurIndex]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
                     firstIndexCount ++
                 }
                 //remove the "EUR" from the price
@@ -263,14 +159,6 @@ class CameraFragmentViewModel @ViewModelInject constructor(
             }
         }
 
-        /*for (i in productNameList) {
-            Log.i("Receipt2ImageView","Produce${productNameList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.5")
-        }
-
-        for (i in priceList) {
-            Log.i("Receipt2ImageView","Price${priceList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.6")
-        }*/
-
         val numOfEur = priceList.size
         val numOfProductEur = numOfEur - 2
         val lastEurIndex = numOfEur  - 3
@@ -282,35 +170,6 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         if(plusTrigger){
             firstProductIndex --
         }
-
-        /*priceList.forEach { price ->
-
-
-        }*/
-        /*for (i in productList){
-            when{
-                i == "REDUCED PRICE" -> {firstProductIndex -2 }
-                i.contains("kg") -> {firstProductIndex -- }
-                i.length < 3 -> {firstProductIndex -- }
-            }
-            Log.i("Receipt2ImageView","$firstProductIndex!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.0")
-        }*/
-        //
-
-
-        /*var tests = 0
-        val testProductList = mutableListOf<String>()
-        for (i in firstProductIndex .. lastProductIndex){
-            testProductList.add(productList[i])
-            Log.i("Receipt2ImageView","${testProductList[tests]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.3")
-            tests ++
-        }
-        Log.i("Receipt2ImageView","${priceList.size}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.4")
-        Log.i("Receipt2ImageView","${testProductList.size}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.5")*/
-
-
-
-
         var priceIndex = 0
         for (i in productNameList){
             //
@@ -415,27 +274,19 @@ class CameraFragmentViewModel @ViewModelInject constructor(
             //Insert into products table
             products.forEach { receiptDao.insertProduct(it)}
         }*/
-
-
-        /*Log.i("ImageViewFragments","$firstIndexCount!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4.0")
-        Log.i("ImageViewFragments","${productList[firstEurIndex]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4.1")
-        Log.i("ImageViewFragments","$numOfEur!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4.2")
-        Log.i("ImageViewFragments","$numOfProductEur!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4.3")
-        Log.i("ImageViewFragments","${priceList[lastEurIndex]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4.4")
-        Log.i("ImageViewFragments","${productList[firstProductIndex]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4.5")
-        Log.i("ImageViewFragments","${productList[lastProductIndex]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4.6")
-        Log.i("ImageViewFragments","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4.7")
-        Log.i("ImageViewFragments","${priceList[totalPriceIndex]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!4.8")*/
     }
 
 
 
     fun aldiReceipt(){
+        var endTag = 0
         //
         for(i in productList){
             when{
                 //Check for the end of the receipt
                   i.toUpperCase(Locale.ROOT).contains("GOODS")  -> {
+                      //indicate that an end tag was encountered
+                      endTag ++
                       //remove the first 5 characters from the string
                       var sans5 = String()
                       for (c in i.indices) {
@@ -475,18 +326,25 @@ class CameraFragmentViewModel @ViewModelInject constructor(
                 }
             }
         }
+
+        //Check for errors in Detected data and write to the database or display an error message
+        errorCheck(endTag,"ALDI")
+
         //testing
         for (i in productNameList) {
             Log.i("Receipt2ImageView","Produce${productNameList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.5")
         }
 
         for (i in priceList) {
-            Log.i("Receipt2ImageView","Price${priceList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.6")
+            Log.i("Receipt2ImageView","Price${priceList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.7")
         }
+        //Write data to database
+        //writeToDatabase("ALDI")
     }
 
     fun lidlReceipt(){
         var totalPrice = String()
+        var endTag = 0
         for (i in productList){
             //
             when{
@@ -494,6 +352,8 @@ class CameraFragmentViewModel @ViewModelInject constructor(
                     // and end loop
                 i.toUpperCase(Locale.ROOT).contains("TOTAL") || i.toUpperCase(Locale.ROOT)
                     .contains("DEBIT")  -> {
+                    //indicate that an end tag was encountered
+                    endTag ++
                     if (i.toUpperCase(Locale.ROOT).contains("TOTAL")){
                     val ind = productList.indexOf(i) + 1
                     priceList.add( productList[ind])
@@ -519,34 +379,106 @@ class CameraFragmentViewModel @ViewModelInject constructor(
                 }
             }
         }
-        //testing
-        for (i in productNameList) {
-            Log.i("Receipt2ImageView","Produce${productNameList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.5")
-        }
 
-        for (i in priceList) {
-            Log.i("Receipt2ImageView","Price${priceList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.6")
+
+        //Check for errors in Detected data and write to the database or display an error message
+        errorCheck(endTag,"LIDL")
+
+        //Write data to database
+        //writeToDatabase("LIDL")
+    }
+
+    //Check for errors in the detected data
+    fun errorCheck(endTag: Int, storeName: String) {
+        //Check that an end tag was encountered and the productName size does not exceed that of
+        //the pricelist
+        when {
+            endTag == 0 -> {
+                onIncompleteDataReceived()
+            }
+            productNameList.size == priceList.size || productNameList.size > priceList.size -> {
+                onIncompleteDataReceived()
+            }else -> {
+            //If there are no errors, write to the database
+            writeToDatabase(storeName)
+        }
         }
     }
 
+    //write detected data to the database
+    fun writeToDatabase(storeName: String){
+        //
+         applicationScope.launch {
+           var sKey = 0
+           var rKey = 0
+           //create shop list
+           val shops = listOf(Shop(storeName))
+           /** Check if the shop is already in the database before adding, if there, make that the bKey*/
+           //Insert into shops table
+           shops.forEach { receiptDao.insertShop(it)}
+           //get auto generated primary key from Shops table
+           val bKey = receiptDao.getShopsId()
+           bKey.forEach {
+               sKey = it.shopId
+           }
+           //create receipt list
+           val receipts = listOf(Receipt(sKey))
+           //insert into receipt table
+           receipts.forEach { receiptDao.insertReceipt(it)}
+           //get auto generated primary key from receipt table
+           val cKey = receiptDao.getReceiptWithID(sKey)
+           cKey.forEach {
+               rKey = it.receiptId
+           }
+           //Key to navigate to the detail receipt after using receipt
+           rets = cKey
+           //create product lists of receipt products
+             Log.i("Receipt2ImageView","Price${priceList.size}!!!!!!!!!!!!!!!!!!!!!!!!${priceList[productNameList.size]}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.6")
+             for(i in productNameList.indices){
+               products.add(Product(productNameList[i],priceList[i],rKey))
+             }
+             products.add(Product("Total",priceList[productNameList.size],rKey))
+            //Insert into products table
+            products.forEach { receiptDao.insertProduct(it)}
+        }
+
+    }
+
+
+
     //Navigate to the detailed receipt screen and pass the current receipt
     fun onGoToDetailViewClick() = viewModelScope.launch{
-        Log.i("Receipt2ImageView","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!3.0")
         rets.forEach { receipt ->
             cameraEventChannel.send(CameraEvent.NavigateToReceiptDetailScreen(receipt))
         }
     }
     //Trigger change in icon when image processing is completed
     fun onImageProcessingCompleted() = viewModelScope.launch {
-        cameraEventChannel.send(CameraEvent.imageProcessingCompleted)
+        cameraEventChannel.send(CameraEvent.ImageProcessingCompleted)
     }
-
-    //
+    //Trigger to change button if no supported receipt is detected
+    fun onNoReceiptDetected() = viewModelScope.launch {
+        cameraEventChannel.send(CameraEvent.NoSupportedReceiptDetected)
+    }
+    //Trigger to change button if no supported receipt is detected
+    fun onIncompleteDataReceived() = viewModelScope.launch {
+        cameraEventChannel.send(CameraEvent.IncompleteDataReceived)
+    }
+    //Trigger to change button if no supported receipt is detected
+    fun onStoreNotSupported() = viewModelScope.launch {
+        cameraEventChannel.send(CameraEvent.StoreNotSupported)
+    }
+    //Events
     sealed class CameraEvent{
-        //
+        //Event to navigate to the detailed receipt screen
         data class NavigateToReceiptDetailScreen(val receipt: Receipt) : CameraEvent()
-        //
-        //data class imageProcessingCompleted(val trigger: Boolean) : CameraEvent()
-        object  imageProcessingCompleted : CameraEvent()
+        //Event triggered when image processing is completed
+        object  ImageProcessingCompleted : CameraEvent()
+        //Event triggered if no supported receipt is detected
+        object NoSupportedReceiptDetected : CameraEvent()
+        //Event triggered when captured data is incomplete or defective
+        object IncompleteDataReceived : CameraEvent()
+        //Event triggered when a particular store is not currently supported
+        object StoreNotSupported : CameraEvent()
     }
 }

@@ -15,13 +15,14 @@
         app:layout_constraintHorizontal_bias="0.544"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/avatars" />
+        tools:srcCompat="@tools:sample/avatars"
+        android:contentDescription="@string/image_description1" />
 
     <Button
         android:id="@+id/go_to_receipt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Go to receipt detail"
+        android:text="@string/go_to_detail"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -33,10 +34,48 @@
         android:id="@+id/loading_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Processing Image..."
+        android:text="@string/processing_image"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView"
+        />
+
+    <Button
+        android:id="@+id/no_receipt_detected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/no_receipt"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView"
+        android:backgroundTint="@color/error_red"
+        android:visibility="gone"
+        />
+    <Button
+        android:id="@+id/incomplete_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/incomplete_data"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView"
+        android:backgroundTint="@color/error_red"
+        android:visibility="gone"
+        />
+
+    <Button
+        android:id="@+id/store_not_supported"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/store_not_supported"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView"
+        android:backgroundTint="@color/error_red"
+        android:visibility="gone"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

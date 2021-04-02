@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">BudgetTracker</string>
+    <string name="no_receipt">No supported receipt detected</string>
+    <string name="processing_image">Processing Image…</string>
+    <string name="go_to_detail">Go to receipt detail</string>
+    <string name="image_description1">Image of captured receipt</string>
+    <string name="store_not_supported">Sorry, but this store is currently not supported,
+        however, support will be added shortly</string>
+    <string name="incomplete_data">Please ensure that the receipt "Total" is in frame
+        and that the receipt is not faded and try again!</string>
 </resources>
