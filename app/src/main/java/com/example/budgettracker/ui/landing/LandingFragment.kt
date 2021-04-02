@@ -38,33 +38,7 @@ class LandingFragment : Fragment(R.layout.fragment_landing), ReceiptAdapter.onIt
 
     //create a csv file name
     private val csvFileName : String = "ReceiptProducts.csv"
-    /*override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        //binding to the view
-        val binding = FragmentLandingBinding.bind(view)
-        //instance of the receipt adapter
-        val receiptAdapter = ReceiptAdapter()
-        //binding our receipts
-        binding.apply {
-            recyclerViewLanding.apply {
-                //set the adapter of the recyclerviewlanding
-                adapter = receiptAdapter
-                //
-                layoutManager = LinearLayoutManager(requireContext())
-            }
-        }
 
-        //button to navigate to the camera fragment and scan new receipt data
-        binding.fabAddReceipt.setOnClickListener { view : View ->
-            view.findNavController().navigate(R.id.action_landingFragment_to_cameraFragment)
-        }
-
-        //observes the receipt database
-        viewModel.receipt.observe(viewLifecycleOwner) {
-            //
-            receiptAdapter.submitList(it)
-        }
-    }*/
     override fun onViewCreated(view: View, savedInstanceState: Bundle?){
         super.onViewCreated(view, savedInstanceState)
         //binding to the view

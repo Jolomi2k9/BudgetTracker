@@ -11,44 +11,7 @@ import com.example.budgettracker.R
 import com.example.budgettracker.data.ShopsWithReceipts
 import com.example.budgettracker.databinding.ItemReceiptBinding
 
-/*class ReceiptAdapter : ListAdapter<Receipt,ReceiptAdapter.ReceiptViewHolder>(DiffCallback()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReceiptViewHolder {
-        //create the needed binding object for the layout inflater
-        val binding = ItemReceiptBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ReceiptViewHolder(binding)
-    }
-
-    override fun onBindViewHolder(holder: ReceiptViewHolder, position: Int) {
-        //Reference to the current position item
-        val currentItem = getItem(position)
-        holder.bind(currentItem)
-    }
-        // Create the viewholder and binding for the item receipt view
-
-    class ReceiptViewHolder(private val binding: ItemReceiptBinding) : RecyclerView.ViewHolder(binding.root){
-
-        //function to put data into the views in layout
-        fun bind(receipt: Receipt){
-            //specifies which data to put into the view of the item receipt
-            *//*binding.apply {
-                storeName.text = receipt.shopName
-                totalPrice.text = receipt.price.toString()
-                receiptDate.text = receipt.createdDateFormatted
-            }*//*
-        }
-    }
-    //to enable the ListAdapter to compare list items
-    class DiffCallback : DiffUtil.ItemCallback<Receipt>(){
-        //uniquely compare items
-        override fun areItemsTheSame(oldItem: Receipt, newItem: Receipt) =
-            oldItem.receiptId == newItem.receiptId
-
-        override fun areContentsTheSame(oldItem: Receipt, newItem: Receipt)  =
-             oldItem == newItem
-    }
-
-}*/
 //Adapter to handle a list of receipts
 class ReceiptAdapter(private val listener: onItemClickListener) : ListAdapter<ShopsWithReceipts, ReceiptAdapter.ReceiptViewHolder>(DiffCallback()){
 
@@ -102,16 +65,7 @@ class ReceiptAdapter(private val listener: onItemClickListener) : ListAdapter<Sh
                 }
                 //
                 totalPrice.text = test
-                /*val test = mutableListOf<Double>()
-                shopsWithReceipts.receipt.forEach { it ->
-                    //add all the product prices in the price list
-                    it.product.forEach {
-                         test.add(it.price.toDouble())
-                    }
-                    //display the sum of all the items in the price list
-                    totalPrice.text = test.sum().toString()
-                    //Log.i("Receipt","!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2")
-                }*/
+
             }
         }
     }

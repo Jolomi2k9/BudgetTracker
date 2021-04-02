@@ -34,9 +34,6 @@ private lateinit var imageFile: File
 class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
 
     private val viewModel: CameraFragmentViewModel by viewModels()
-    //lateinit var jTextEntityExtractor: EntityExtractor
-    //private var jIsModelAvailable = false
-    //testing
 
     private lateinit var safeContext: Context
 
@@ -49,17 +46,7 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
         super.onViewCreated(view, savedInstanceState)
 
         val binding = FragmentImageviewBinding.bind(view)
-        //
-        //EntityExtractor object configured with EntityExtractorOptions
-        /*jTextEntityExtractor = EntityExtraction.getClient(
-            EntityExtractorOptions.Builder(EntityExtractorOptions.ENGLISH)
-                .build()
-        )*/
-        //Confirming the needed model is downloaded on the device
-        /*jTextEntityExtractor.downloadModelIfNeeded()
-            .addOnSuccessListener { _ ->
-                jIsModelAvailable = true
-            }*/
+
         //
         if (ContextCompat.checkSelfPermission(
                 safeContext,
@@ -119,21 +106,7 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
         }
     }
 
-    /*override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        //check if user has successfully taken a picture with the camera
-        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            // val takenImage = data?.extras?.get("data") as Bitmap
-            val takenImage = BitmapFactory.decodeFile(imageFile.absolutePath)
-            imageView.setImageBitmap(takenImage)
-            //update mIsModelAvailable and mTextEntityExtractor in viewModel
-            //viewModel.mIsModelAvailable = jIsModelAvailable
-            //viewModel.mTextEntityExtractor = jTextEntityExtractor
-            //pass the captured image to textRecognition in viewModel
-            viewModel.textRecognition(takenImage)
-        } else {
-            super.onActivityResult(requestCode, resultCode, data)
-        }
-    }*/
+
     //Alternative to onActivityResult
     var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -154,11 +127,7 @@ class ImageViewFragment : Fragment(R.layout.fragment_imageview) {
         val fileProvider =
             FileProvider.getUriForFile(safeContext, "com.example.fileprovider", imageFile)
         takePicture.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
-        //if (takePicture.resolveActivity(this.packageManager) != null) {
-        //startActivityForResult(takePicture, REQUEST_CODE)
-        //} else {
-        // Toast.makeText(this, "No camera detected!", Toast.LENGTH_LONG).show()
-        //}
+
         resultLauncher.launch(takePicture)
     }
 

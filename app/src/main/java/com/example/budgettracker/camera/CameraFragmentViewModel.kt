@@ -216,7 +216,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
 
 
 
-    fun aldiReceipt(){
+    private fun aldiReceipt(){
         var endTag = 0
         //
         for(i in productList){
@@ -280,8 +280,8 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         //writeToDatabase("ALDI")
     }
 
-    fun lidlReceipt(){
-        var totalPrice = String()
+    private fun lidlReceipt(){
+
         var endTag = 0
         for (i in productList){
             //
@@ -327,7 +327,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
     }
 
     //Check for errors in the detected data
-    fun errorCheck(endTag: Int, storeName: String) {
+    private fun errorCheck(endTag: Int, storeName: String) {
         //Check that an end tag was encountered and the productName size does not exceed that of
         //the pricelist
         when {
@@ -344,7 +344,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
     }
 
     //write detected data to the database
-    fun writeToDatabase(storeName: String){
+    private fun writeToDatabase(storeName: String){
         //
          applicationScope.launch {
            var sKey = 0
@@ -391,19 +391,19 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         }
     }
     //Trigger change in icon when image processing is completed
-    fun onImageProcessingCompleted() = viewModelScope.launch {
+    private fun onImageProcessingCompleted() = viewModelScope.launch {
         cameraEventChannel.send(CameraEvent.ImageProcessingCompleted)
     }
     //Trigger to change button if no supported receipt is detected
-    fun onNoReceiptDetected() = viewModelScope.launch {
+    private fun onNoReceiptDetected() = viewModelScope.launch {
         cameraEventChannel.send(CameraEvent.NoSupportedReceiptDetected)
     }
     //Trigger to change button if no supported receipt is detected
-    fun onIncompleteDataReceived() = viewModelScope.launch {
+    private fun onIncompleteDataReceived() = viewModelScope.launch {
         cameraEventChannel.send(CameraEvent.IncompleteDataReceived)
     }
     //Trigger to change button if no supported receipt is detected
-    fun onStoreNotSupported() = viewModelScope.launch {
+    private fun onStoreNotSupported() = viewModelScope.launch {
         cameraEventChannel.send(CameraEvent.StoreNotSupported)
     }
     //Events
