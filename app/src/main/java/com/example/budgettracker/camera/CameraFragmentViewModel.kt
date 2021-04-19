@@ -69,7 +69,8 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         for (i in productList) {
             when{
                 i.toUpperCase(Locale.ROOT) == "TESCO" || i.toUpperCase(Locale.ROOT) == "TESC" -> {
-                    onStoreNotSupported()
+                    //onStoreNotSupported()
+                    tescoReceipt2()
                     break
                 }
                 i.toUpperCase(Locale.ROOT).contains("ALDI") -> {
@@ -96,9 +97,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
                     //If no receipt is detected
                     onNoReceiptDetected()
                 }
-
             }
-
         }
     }
 
@@ -441,30 +440,36 @@ class CameraFragmentViewModel @ViewModelInject constructor(
     }
 
     private fun tescoReceipt2(){
-        //
-          var tempProductList = mutableListOf<String>()
-          var tempPriceList = mutableListOf<String>()
+
         var scuffedIndex = mutableListOf<Int>()
+        var finalEurIndex = 0
         var endTag = 0
+        var prodEndTag = true
         //
         for(i in productList){
             when{
                 //Check for the end of the receipt
-                i.toUpperCase(Locale.ROOT).contains("TOTAL") && i.length < 7 ||
-                        i.contains("AID") -> {
+                i.toUpperCase(Locale.ROOT).contains("ICC") ||
+                        i.toUpperCase(Locale.ROOT).contains("CLUBCARD") ||
+                        i.toUpperCase(Locale.ROOT).contains("STATEMENT")-> {
                     //indicate that an end tag was encountered
                     endTag ++
-                    //record appropriate item as the total price
-                    if(i == "AID") {
-                        tempPriceList.add(productList[productList.indexOf(i) - 5])
-                        break
+                    //
+                    if(i.contains("ICC")){
+                    priceList.add(priceList[finalEurIndex])
+                    break
                     }else{
-                        tempPriceList.add(productList[productList.indexOf(i) - 2])
+
                         break
                     }
                 }
-                //It EUR or FUR is present, assume this to be an item price
-                i.contains("EUR") || i.contains("FUR") -> {
+                i.contains("AID") || i.contains("ALD") -> {
+                    prodEndTag = false
+                }
+                //If EUR or FUR is present, assume this to be an item price
+                i.length < 9 && i.contains("EUR") || i.length < 9 &&
+                        i.contains("FUR") || i.length < 9 &&
+                        i.contains("EU") ->  {
                     //remove the "EUR" from the price
                     var sansEUR = String()
                     for (c in i.indices) {
@@ -482,38 +487,57 @@ class CameraFragmentViewModel @ViewModelInject constructor(
                         }
                     }
                     //add this to the priceList
-                    tempPriceList.add(finalPrice)
+                    priceList.add(finalPrice)
+                    finalEurIndex = priceList.size
                 }
-                //If starts with a digit  and contains "."
+                //if contains total and more than 5 characters long add to productList
+                i.contains("TOTAL") && i.length > 5 -> {
+                    productNameList.add(i)
+                }
+                //If contains "."
                 // or if the length is less and 7 and contains "." then assume
                 // this to be a price item
-                i[0].isDigit()  && i.contains('.') && i.length < 7
-                        || i.length < 7 && i.contains('.') && !i.contains("-")-> {
-                    tempPriceList.add(i)
+                i.contains('-') && i.contains('.') || i.contains(',')
+                        || i.length < 6 && i.contains('.') -> {
+                    priceList.add(i)
                 }
                 //if any of the below words and characters are encountered, ignore them
-                i.contains("MULTIBUY") || i.contains("SAVINGS") ||
+                i.contains("MULTIBUY") || i.contains("SAVINGS")||
                         i.contains("@") || i.contains("kg") ||
                         i.contains("REDUCE") -> {}
-                //
+                //If an item with less than 3 characters, store index
                 i.length < 3 -> {
-
-                    scuffedIndex.add(tempProductList.indexOf(i) - 1)
+                    scuffedIndex.add(productNameList.size)
                 }
-                //else this is a product item
+                //else this is a product item but ignore below words
                 productList.indexOf(i) != 0 && productList.indexOf(i) != 1 &&
-                        !i.contains("DEBIT") && !i.contains("paypass")
-                        && !i.contains("TOTAL")-> {
-                    tempProductList.add(i)
+                        !i.contains("DEBIT") && !i.contains("pass")
+                        && !i.contains("TOTAL") && !i.contains("AID")
+                        && !i.contains("NUMBER")&& !i.contains("SEQ")
+                        && prodEndTag && !i.contains("-") &&
+                        !i.contains("****")&& !i.contains("MERCHANT")
+                        && !i.contains("ALD")&& !i.contains("A000000")
+                        && !i.contains("000000")&& !i.contains("CASH")
+                        && !i.contains("CHANGE")&& !i.contains("CODE")-> {
+                    productNameList.add(i)
                 }
             }
         }
 
-        for (i in tempPriceList){
-
+        for (i in scuffedIndex){
+            priceList.removeAt(i - 1)
         }
         //Check for errors in Detected data and write to the database or display an error message
-        errorCheck(endTag, "DUNNES STORES")
+        errorCheck(endTag, "TESCO")
+
+        //testing
+        /*for (i in productNameList) {
+            Log.i("Receipt2ImageView","Produce${productNameList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.5")
+        }
+
+        for (i in priceList) {
+            Log.i("Receipt2ImageView","Price${priceList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.7")
+        }*/
 
     }
 
