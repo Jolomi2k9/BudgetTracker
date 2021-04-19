@@ -61,7 +61,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
                 //store all lines in productList
                 productList.add(lineText)
 
-                Log.i("ReceiptImageView","${lineText}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
+                Log.i("ReceiptImageView1","${lineText}!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1")
             }
         }
         //Identify which receipt has been scanned and call the associated function or display
@@ -78,10 +78,21 @@ class CameraFragmentViewModel @ViewModelInject constructor(
                 }
                 i.toUpperCase(Locale.ROOT).contains("LODL") ||
                         i.toUpperCase(Locale.ROOT).contains("LDL") ||
+                        i.toUpperCase(Locale.ROOT).contains("LD") ||
                         i.toUpperCase(Locale.ROOT).contains("LIDL")-> {
                     lidlReceipt()
                     break
-                }else -> {
+                }
+                i.toUpperCase(Locale.ROOT).contains("PRIMARK") ||
+                        i.toUpperCase(Locale.ROOT).contains("PENNEY") -> {
+                    penneysReceipt()
+                    break
+                }
+                i.toUpperCase(Locale.ROOT).contains("DUNNES") -> {
+                    dunnesReceipt()
+                    break
+                }
+                else -> {
                     //If no receipt is detected
                     onNoReceiptDetected()
                 }
@@ -222,7 +233,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         for(i in productList){
             when{
                 //Check for the end of the receipt
-                  i.toUpperCase(Locale.ROOT).contains("GOODS")  -> {
+                  i.toUpperCase(Locale.ROOT).contains("GOODS") -> {
                       //indicate that an end tag was encountered
                       endTag ++
                       //remove the first 5 characters from the string
@@ -266,7 +277,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
         }
 
         //Check for errors in Detected data and write to the database or display an error message
-        errorCheck(endTag,"ALDI")
+            errorCheck(endTag, "ALDI")
 
         //testing
         for (i in productNameList) {
@@ -281,7 +292,6 @@ class CameraFragmentViewModel @ViewModelInject constructor(
     }
 
     private fun lidlReceipt(){
-
         var endTag = 0
         for (i in productList){
             //
@@ -308,7 +318,7 @@ class CameraFragmentViewModel @ViewModelInject constructor(
                         i.contains("Item") ||i.contains("EUR") ||
                         i.contains("x") && i.contains(".") -> {}
                 //if item has "." and is less than 7 in length, assume it to be an item price
-                i.contains(".") && i.length < 7 -> {
+                i.contains(".") || i.contains(",") && i.length < 8  -> {
                     priceList.add(i)
                 }
                 //otherwise, if this is not the first two item, then this is a product item
@@ -318,12 +328,193 @@ class CameraFragmentViewModel @ViewModelInject constructor(
             }
         }
 
+        //testing
+        for (i in productNameList) {
+            Log.i("Receipt2ImageView","Produce${productNameList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.5")
+        }
+
+        for (i in priceList) {
+            Log.i("Receipt2ImageView","Price${priceList.size}!!!!!!!!!!!!!!!!!$i!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!2.7")
+        }
+
 
         //Check for errors in Detected data and write to the database or display an error message
         errorCheck(endTag,"LIDL")
 
         //Write data to database
         //writeToDatabase("LIDL")
+    }
+
+    private fun penneysReceipt(){
+        var endTag = 0
+        //
+        for(i in productList){
+            when{
+                //Check for the end of the receipt
+                i.toUpperCase(Locale.ROOT).contains("TOTAL")  -> {
+                    //indicate that an end tag was encountered
+                    endTag ++
+                    //remove the first 5 characters from the string
+                    var sans5 = String()
+                    for (c in i.indices) {
+                        if (c > 5) {
+                            sans5 += i[c].toString()
+                        }
+                    }
+                    //if any char is an 'O' or 'o' or 'S', substitute with a "0" or "5"
+                    var totalPrice = String()
+                    for (i in sans5.indices) {
+                        totalPrice += when{
+                            sans5[i] == 'O' || sans5[i] == 'o'->{
+                                "0"
+                            }
+                            sans5[i] == 'S'->{
+                                "5"
+                            }else->{
+                                sans5[i].toString()
+                            }
+                        }
+                    }
+                    priceList.add(totalPrice)
+                    break
+                }
+                //if the first 4 char are digits and the string is longer than 7, then assume this to
+                //be a product item
+                i.length > 3 && i[0].isDigit() && i[1].isDigit() && i[2].isDigit() && i[3].isDigit()
+                        && i.length > 7 -> {
+                    productNameList.add(i)
+                }
+                //If starts with a digit and ends with a character and also contains "."
+                // or if the length is less and 7 and contains "." then assume
+                // this to be a price item
+                i[0].isDigit()  && i.contains('.') && i.length < 7
+                        || i.length < 7 && i.contains('.') -> {
+                    priceList.add(i)
+                }
+            }
+        }
+
+        //Check for errors in Detected data and write to the database or display an error message
+        errorCheck(endTag,"PENNEYS")
+    }
+
+    private fun dunnesReceipt(){
+        var endTag = 0
+        var startTag = false
+        //
+        for(i in productList){
+            when{
+                //Check for the end of the receipt
+                i.toUpperCase(Locale.ROOT).contains("BAL") -> {
+                    //indicate that an end tag was encountered
+                    endTag ++
+                    //assume the next item is the total price
+                    priceList.add(productList[productList.indexOf(i) + 1])
+                    break
+                }
+                i.contains("Shop") || i.contains("www.dunnesstores.com") ||
+                        i.contains("www") || i.contains("online")  -> {
+                    startTag = true
+                }
+                //if start tag is true
+                i.length > 3 && !i[0].isDigit() && !i.contains("SAVER") && !i.contains("DEAL") &&
+                         !i.contains("-") && startTag  -> {
+                    productNameList.add(i)
+                }
+                //If starts with a digit  and contains "."
+                // or if the length is less and 7 and contains "." then assume
+                // this to be a price item
+                i[0].isDigit()  && i.contains('.') && i.length < 7
+                        || i.length < 7 && i.contains('.') && !i.contains("-")-> {
+                    priceList.add(i)
+                }
+                //if any of the below words and characters are encountered, ignore them
+                i.contains("SAVER") || i.contains("DEAL") ||
+                        i.contains("*") || i.contains("-") ||
+                        i.contains("!") -> {}
+            }
+        }
+
+        //Check for errors in Detected data and write to the database or display an error message
+        errorCheck(endTag, "DUNNES STORES")
+
+    }
+
+    private fun tescoReceipt2(){
+        //
+          var tempProductList = mutableListOf<String>()
+          var tempPriceList = mutableListOf<String>()
+        var scuffedIndex = mutableListOf<Int>()
+        var endTag = 0
+        //
+        for(i in productList){
+            when{
+                //Check for the end of the receipt
+                i.toUpperCase(Locale.ROOT).contains("TOTAL") && i.length < 7 ||
+                        i.contains("AID") -> {
+                    //indicate that an end tag was encountered
+                    endTag ++
+                    //record appropriate item as the total price
+                    if(i == "AID") {
+                        tempPriceList.add(productList[productList.indexOf(i) - 5])
+                        break
+                    }else{
+                        tempPriceList.add(productList[productList.indexOf(i) - 2])
+                        break
+                    }
+                }
+                //It EUR or FUR is present, assume this to be an item price
+                i.contains("EUR") || i.contains("FUR") -> {
+                    //remove the "EUR" from the price
+                    var sansEUR = String()
+                    for (c in i.indices) {
+                        if (c > 2) {
+                            sansEUR += i[c].toString()
+                        }
+                    }
+                    //if any char is an 'O' or 'o', substitute with a "0"
+                    var finalPrice = String()
+                    for (i in sansEUR.indices) {
+                        finalPrice += if (sansEUR[i] == 'O' || sansEUR[i] == 'o') {
+                            "0"
+                        } else {
+                            sansEUR[i].toString()
+                        }
+                    }
+                    //add this to the priceList
+                    tempPriceList.add(finalPrice)
+                }
+                //If starts with a digit  and contains "."
+                // or if the length is less and 7 and contains "." then assume
+                // this to be a price item
+                i[0].isDigit()  && i.contains('.') && i.length < 7
+                        || i.length < 7 && i.contains('.') && !i.contains("-")-> {
+                    tempPriceList.add(i)
+                }
+                //if any of the below words and characters are encountered, ignore them
+                i.contains("MULTIBUY") || i.contains("SAVINGS") ||
+                        i.contains("@") || i.contains("kg") ||
+                        i.contains("REDUCE") -> {}
+                //
+                i.length < 3 -> {
+
+                    scuffedIndex.add(tempProductList.indexOf(i) - 1)
+                }
+                //else this is a product item
+                productList.indexOf(i) != 0 && productList.indexOf(i) != 1 &&
+                        !i.contains("DEBIT") && !i.contains("paypass")
+                        && !i.contains("TOTAL")-> {
+                    tempProductList.add(i)
+                }
+            }
+        }
+
+        for (i in tempPriceList){
+
+        }
+        //Check for errors in Detected data and write to the database or display an error message
+        errorCheck(endTag, "DUNNES STORES")
+
     }
 
     //Check for errors in the detected data
