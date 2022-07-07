@@ -33,18 +33,18 @@ The design of the budget tracker application will be a simple and minimalist des
 
 <table>
       <tr>
-<td><img src="https://github.com/Jolomi2k9/BudgetTracker/blob/master/doc/images/Landing.jpg" width="480" height="320"></td>
-<td><img src="https://github.com/Jolomi2k9/BudgetTracker/blob/master/doc/images/Camera.jpg" width="480" height="320"></td>
+<td><img src="https://github.com/Jolomi2k9/BudgetTracker/blob/master/doc/images/Landing.jpg" width="380" height="720"></td>
+<td><img src="https://github.com/Jolomi2k9/BudgetTracker/blob/master/doc/images/Camera.jpg" width="380" height="720"></td>
    </tr>
    <tr>
    <tr>
-<td><img src="https://github.com/Jolomi2k9/BudgetTracker/blob/master/doc/images/Image%20Preview.jpg" width="480" height="320"></td>
-<td><img src="https://github.com/Jolomi2k9/BudgetTracker/blob/master/doc/images/Receipt%20detail.jpg" width="480" height="320"></td>
+<td><img src="https://github.com/Jolomi2k9/BudgetTracker/blob/master/doc/images/Image%20Preview.jpg" width="380" height="720"></td>
+<td><img src="https://github.com/Jolomi2k9/BudgetTracker/blob/master/doc/images/Receipt%20detail.jpg" width="380" height="720"></td>
    </tr>
    <tr>
    <tr>
-<td><img src="https://github.com/Jolomi2k9/BudgetTracker/blob/master/doc/images/Export%20receipt.jpg" width="480" height="320"></td>
-<td><img src="https://github.com/Jolomi2k9/BudgetTracker/blob/master/doc/images/Exported%20receipts.jpg" width="480" height="320"></td>
+<td><img src="https://github.com/Jolomi2k9/BudgetTracker/blob/master/doc/images/Export%20receipt.jpg" width="380" height="720"></td>
+<td><img src="https://github.com/Jolomi2k9/BudgetTracker/blob/master/doc/images/Exported%20receipts.jpg" width="380" height="720"></td>
    </tr>
    <tr>
 </table>
